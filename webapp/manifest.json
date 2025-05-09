@@ -9,7 +9,7 @@
       "supportedLocales": [
         "es_MX"
       ]
-  },  
+    },
     "applicationVersion": {
       "version": "1.0.1"
     },
@@ -85,18 +85,15 @@
       },
       "routes": [
         {
-          "name": "RouteMain",
-          "pattern": "home",
-          "target": [
-            "TargetMain"
-          ]
+          "pattern": "",
+          "name": "PriceHistory",
+          "target": "PriceHistory"
         }
       ],
       "targets": {
-        "TargetMain": {
-          "id": "Main",
-          "name": "Main",
-          "viewlevel":1
+        "PriceHistory": {
+          "viewName": "PriceHistory",
+          "viewLevel": 1
         }
       }
     },

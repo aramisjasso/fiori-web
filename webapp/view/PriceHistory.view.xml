@@ -1,0 +1,30 @@
+<mvc:View 
+  controllerName="com.inv.sapfiori.controller.PriceHistory"
+  xmlns:mvc="sap.ui.core.mvc" 
+  xmlns="sap.m" 
+  displayBlock="true">
+
+  <Page title="Histórico de Ventas">
+    <Table items="{/salesData}">
+      <columns>
+        <Column><Text text="Fecha"/></Column>
+        <Column><Text text="Open"/></Column>
+        <Column><Text text="High"/></Column>
+        <Column><Text text="Low"/></Column>
+        <Column><Text text="Close"/></Column>
+        <Column><Text text="Volume"/></Column>
+      </columns>
+      <items>
+        <ColumnListItem>
+          <Text text="{date}"/>
+          <Text text="{open}"/>
+          <Text text="{high}"/>
+          <Text text="{low}"/>
+          <Text text="{close}"/>
+          <Text text="{volume}"/>
+        </ColumnListItem>
+      </items>
+    </Table>
+  </Page>
+  
+</mvc:View>
