@@ -5,9 +5,9 @@
   displayBlock="true">
 
   <Page title="Histórico de Ventas">
-    <Table items="{/salesData}">
+    <Table items="{/priceData}">
       <columns>
-        <Column><Text text="Fecha"/></Column>
+        <Column><Text text="Date"/></Column>
         <Column><Text text="Open"/></Column>
         <Column><Text text="High"/></Column>
         <Column><Text text="Low"/></Column>
@@ -16,15 +16,15 @@
       </columns>
       <items>
         <ColumnListItem>
-          <Text text="{date}"/>
-          <Text text="{open}"/>
-          <Text text="{high}"/>
-          <Text text="{low}"/>
-          <Text text="{close}"/>
-          <Text text="{volume}"/>
+          <Text text="{DATE}"/>
+          <Text text="{OPEN}"/>
+          <Text text="{HIGH}"/>
+          <Text text="{LOW}"/>
+          <Text text="{CLOSE}"/>
+          <Text text="{VOLUME}"/>
         </ColumnListItem>
       </items>
     </Table>
   </Page>
-  
+
 </mvc:View>

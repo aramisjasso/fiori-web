@@ -1,25 +1,23 @@
 sap.ui.define([
     "sap/ui/core/UIComponent",
     "com/inv/sapfiori/model/models"
-], (UIComponent, models) => {
+], (UIComponent, models) => { // <- Quita ODataModel de aquí
     "use strict";
 
     return UIComponent.extend("com.inv.sapfiori.Component", {
         metadata: {
             manifest: "json",
-            interfaces: [
-                "sap.ui.core.IAsyncContentCreation"
-            ]
+            interfaces: ["sap.ui.core.IAsyncContentCreation"]
         },
 
         init() {
-            // call the base component's init function
+            // 1. Init del padre
             UIComponent.prototype.init.apply(this, arguments);
 
-            // set the device model
+            // 2. Modelo de dispositivo
             this.setModel(models.createDeviceModel(), "device");
 
-            // enable routing
+            // 4. Inicia routing
             this.getRouter().initialize();
         }
     });
