@@ -1,0 +1,10 @@
+<mvc:View
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns="sap.m"
+  displayBlock="true">
+  <Page title="Catalogs Module">
+    <content>
+      <Text text="Aquí irá el contenido de Catalogs..." class="sapUiSmallMargin"/>
+    </content>
+  </Page>
+</mvc:View>

@@ -1,11 +1,15 @@
 <mvc:View 
-  controllerName="com.inv.sapfiori.controller.PriceHistory"
+  controllerName="com.inv.sapfiori.controller.Inversions"
   xmlns:mvc="sap.ui.core.mvc" 
+  xmlns:core="sap.ui.core"
   xmlns="sap.m" 
   displayBlock="true">
 
   <Page title="Histórico de Ventas">
-    <Table items="{/priceData}">
+    <headerContent>
+      <core:Fragment fragmentName="com.inv.sapfiori.view.fragments.SymbolSelector" type="XML"/>
+    </headerContent>
+    <Table items="{priceData>/value}">
       <columns>
         <Column><Text text="Date"/></Column>
         <Column><Text text="Open"/></Column>
@@ -16,12 +20,12 @@
       </columns>
       <items>
         <ColumnListItem>
-          <Text text="{DATE}"/>
-          <Text text="{OPEN}"/>
-          <Text text="{HIGH}"/>
-          <Text text="{LOW}"/>
-          <Text text="{CLOSE}"/>
-          <Text text="{VOLUME}"/>
+          <Text text="{priceData>DATE}"/>
+          <Text text="{priceData>OPEN}"/>
+          <Text text="{priceData>HIGH}"/>
+          <Text text="{priceData>LOW}"/>
+          <Text text="{priceData>CLOSE}"/>
+          <Text text="{priceData>VOLUME}"/>
         </ColumnListItem>
       </items>
     </Table>

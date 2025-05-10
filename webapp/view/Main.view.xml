@@ -1,15 +1,29 @@
 <mvc:View
-    controllerName="com.inv.sapfiori.controller.Main"
-    xmlns:mvc="sap.ui.core.mvc"
-    xmlns:m="sap.m"
->
-    <m:Page
-        id="IdPageMain"
-        title="{i18n>title}"
-    >
-        <m:Text
-            id="IdTextMain"
-            text="MI PAGINA DE INICIO (PRINCIPAL)"
-        />
-    </m:Page>
+  controllerName="com.inv.sapfiori.controller.Main"
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns="sap.m"
+  height="100%">
+  
+  <IconTabBar
+    id="mainNav"
+    expanded="true"
+    select=".onTabSelect"
+    class="sapUiNoContentPadding">
+    <items>
+      <IconTabFilter text="Security" key="security" />
+      <IconTabFilter text="Catalogs" key="catalogs" />
+      <IconTabFilter text="Inversions" key="inversions" />
+    </items>
+  </IconTabBar>
+
+  <NavContainer 
+    id="navCon"
+    height="100%"
+    class="sapUiNoContentPadding">
+    <pages>
+      <mvc:XMLView viewName="com.inv.sapfiori.view.Security" id="securityView"/>
+      <mvc:XMLView viewName="com.inv.sapfiori.view.Catalogs" id="catalogsView"/>
+      <mvc:XMLView viewName="com.inv.sapfiori.view.Inversions" id="inversionsView"/>
+    </pages>
+  </NavContainer>
 </mvc:View>

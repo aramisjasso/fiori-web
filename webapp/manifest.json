@@ -77,8 +77,8 @@
     "routing": {
       "config": {
         "routerClass": "sap.m.routing.Router",
-        "controlAggregation": "pages",
-        "controlId": "app",
+        "controlAggregation": "content",
+        "controlId": "mainNav",
         "transition": "slide",
         "type": "View",
         "viewType": "XML",
@@ -89,21 +89,48 @@
       "routes": [
         {
           "pattern": "",
-          "name": "PriceHistory",
-          "target": "PriceHistory"
+          "name": "main",
+          "target": "main"
+        },
+        {
+          "pattern": "security",
+          "name": "security",
+          "target": "security"
+        },
+        {
+          "pattern": "catalogs",
+          "name": "catalogs",
+          "target": "catalogs"
+        },
+        {
+          "pattern": "inversions",
+          "name": "inversions",
+          "target": "inversions"
         }
       ],
       "targets": {
-        "PriceHistory": {
-          "viewName": "PriceHistory",
+        "main": {
+          "viewName": "Main",
           "viewLevel": 1
+        },
+        "security": {
+          "viewId": "securityPanel",
+          "viewLevel": 2
+        },
+        "catalogs": {
+          "viewId": "catalogsPanel",
+          "viewLevel": 2
+        },
+        "inversions": {
+          "viewId": "inversionsPanel",
+          "viewLevel": 2
         }
       }
     },
     "rootView": {
-      "viewName": "com.inv.sapfiori.view.App",
+      "viewName": "com.inv.sapfiori.view.Main",
       "type": "XML",
-      "id": "App"
+      "id": "mainView"
     }
   }
 }

@@ -1,0 +1,10 @@
+<mvc:View
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns="sap.m"
+  displayBlock="true">
+  <Page title="Security Module">
+    <content>
+      <Text text="Contenido de Security..." class="sapUiSmallMargin"/>
+    </content>
+  </Page>
+</mvc:View>
