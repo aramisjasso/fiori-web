@@ -112,18 +112,6 @@
         "main": {
           "viewName": "Main",
           "viewLevel": 1
-        },
-        "security": {
-          "viewId": "securityPanel",
-          "viewLevel": 2
-        },
-        "catalogs": {
-          "viewId": "catalogsPanel",
-          "viewLevel": 2
-        },
-        "inversions": {
-          "viewId": "inversionsPanel",
-          "viewLevel": 2
         }
       }
     },
