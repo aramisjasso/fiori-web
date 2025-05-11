@@ -17,7 +17,7 @@ sap.ui.define([
       switch(sKey) {
         case "security":
           oNavCon.to(this.byId("securityView"));
-          this._oRouter.navTo("security"); // Opcional: actualiza la URL
+          this._oRouter.navTo("security"); 
           break;
         case "catalogs":
           oNavCon.to(this.byId("catalogsView"));
