@@ -1,10 +1,95 @@
 <mvc:View
+  controllerName="com.inv.sapfiori.controller.Catalogs"
   xmlns:mvc="sap.ui.core.mvc"
   xmlns="sap.m"
   displayBlock="true">
+
   <Page title="Catalogs Module">
     <content>
-      <Text text="Aquí irá el contenido de Catalogs..." class="sapUiSmallMargin"/>
+      <IconTabBar>
+        <items>
+          <!-- TAB: LABELS -->
+          <IconTabFilter text="LABELS" key="labels" icon="sap-icon://tag">
+            <VBox class="sapUiSmallMargin">
+              <Toolbar>
+                <Button text="Crear Label" press="onCrearLabel"/>
+                <Button text="Eliminar Label" press="onEliminarLabel"/>
+              </Toolbar>
+
+              <Table id="tablaLabels" items="{labels>/}" mode="SingleSelectMaster">
+                <columns>
+                  <Column><Text text="LABELID"/></Column>
+                  <Column><Text text="LABEL"/></Column>
+                  <Column><Text text="DESCRIPTION"/></Column>
+                  <Column><Text text="ACTIVED"/></Column>
+                  <Column><Text text="CURRENT"/></Column>
+                  <Column><Text text="REGDATE"/></Column>
+                  <Column><Text text="REGUSER"/></Column>
+                </columns>
+                <items>
+                  <ColumnListItem>
+                    <cells>
+                      <Text text="{labels>LABELID}"/>
+                      <Text text="{labels>LABEL}"/>
+                      <Text text="{labels>DESCRIPTION}"/>
+                      <Text text="{labels>DETAIL_ROW/ACTIVED}"/>
+                      <Text text="{labels>DETAIL_ROW/DETAIL_ROW_REG/1/CURRENT}"/>
+                      <Text text="{labels>DETAIL_ROW/DETAIL_ROW_REG/1/REGDATE}"/>
+                      <Text text="{labels>DETAIL_ROW/DETAIL_ROW_REG/1/REGUSER}"/>
+                    </cells>
+                  </ColumnListItem>
+                </items>
+              </Table>
+            </VBox>
+          </IconTabFilter>
+
+          <!-- TAB: VALUES -->
+          <IconTabFilter text="VALUES" key="values" icon="sap-icon://value-help">
+            <VBox class="sapUiSmallMargin">
+              <Toolbar>
+                <Button text="Crear Valor" press="onCrearValor"/>
+                <Button text="Eliminar Valor" press="onEliminarValor"/>
+              </Toolbar>
+
+              <Table id="tablaValues" items="{values>/values}">
+              <columns>
+                <Column>
+                  <Text text="ID" />
+                </Column>
+                <Column>
+                  <Text text="Nombre" />
+                </Column>
+                <Column>
+                  <Text text="Descripción" />
+                </Column>
+                <Column>
+                  <Text text="Id Padre" />
+                </Column>
+                <Column>
+                  <Text text="Label" />
+                </Column>
+                <Column >
+                  <Text text="Alias"/>
+                </Column>
+              </columns>
+              <items>
+                <ColumnListItem>
+                  <cells>
+                    <Text text="{values>VALUEID}" />
+                    <Text text="{values>VALUE}" />
+                    <Text text="{values>DESCRIPTION}" />
+                    <Text text="{values>VALUEPAID}" />
+                    <Text text="{values>LABELID}" />
+                    <Text text="{values>ALIAS}" />
+                  </cells>
+                </ColumnListItem>
+              </items>
+            </Table>
+
+            </VBox>
+          </IconTabFilter>
+        </items>
+      </IconTabBar>
     </content>
   </Page>
 </mvc:View>
