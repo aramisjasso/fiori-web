@@ -1,34 +1,45 @@
-<mvc:View 
-  controllerName="com.inv.sapfiori.controller.Inversions"
-  xmlns:mvc="sap.ui.core.mvc" 
-  xmlns:core="sap.ui.core"
-  xmlns="sap.m" 
-  displayBlock="true">
-
-  <Page title="Histórico de Ventas">
+<mvc:View controllerName="com.inv.sapfiori.controller.Inversions"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:l="sap.ui.layout"
+    xmlns:f="sap.ui.layout.form" 
+    xmlns:core="sap.ui.core" 
+    displayBlock="true">
+    <Page id="inversionsPage" title="{i18n>inversionsPageTitle}" showHeader="true">
     <headerContent>
       <core:Fragment fragmentName="com.inv.sapfiori.view.fragments.SymbolSelector" type="XML"/>
     </headerContent>
-    <Table items="{priceData>/value}">
-      <columns>
-        <Column><Text text="Date"/></Column>
-        <Column><Text text="Open"/></Column>
-        <Column><Text text="High"/></Column>
-        <Column><Text text="Low"/></Column>
-        <Column><Text text="Close"/></Column>
-        <Column><Text text="Volume"/></Column>
-      </columns>
-      <items>
-        <ColumnListItem>
-          <Text text="{priceData>DATE}"/>
-          <Text text="{priceData>OPEN}"/>
-          <Text text="{priceData>HIGH}"/>
-          <Text text="{priceData>LOW}"/>
-          <Text text="{priceData>CLOSE}"/>
-          <Text text="{priceData>VOLUME}"/>
-        </ColumnListItem>
-      </items>
-    </Table>
-  </Page>
+        <content>
+            <FlexBox renderType="Bare" alignItems="Start" justifyContent="SpaceBetween" class="sapUiResponsivePadding">
+                <VBox class="sapUiSmallMarginEnd sapUiSmallMarginBottom" width="74%">                 
+                  <Table items="{priceData>/value}">
+                    <columns>
+                      <Column><Text text="Date"/></Column>
+                      <Column><Text text="Open"/></Column>
+                      <Column><Text text="High"/></Column>
+                      <Column><Text text="Low"/></Column>
+                      <Column><Text text="Close"/></Column>
+                      <Column><Text text="Volume"/></Column>
+                    </columns>
+                    <items>
+                      <ColumnListItem>
+                        <Text text="{priceData>DATE}"/>
+                        <Text text="{priceData>OPEN}"/>
+                        <Text text="{priceData>HIGH}"/>
+                        <Text text="{priceData>LOW}"/>
+                        <Text text="{priceData>CLOSE}"/>
+                        <Text text="{priceData>VOLUME}"/>
+                      </ColumnListItem>
+                    </items>
+                  </Table>
+                </VBox>
 
+                <VBox class="sapUiSmallMarginBottom" width="33%"> 
+                  <core:Fragment fragmentName="com.inv.sapfiori.view.fragments.StrategyAnalysisPanel" type="XML" />
+                    <core:Fragment fragmentName="com.inv.sapfiori.view.fragments.StrategyResultPanel" type="XML" />
+                </VBox>
+
+            </FlexBox>
+        </content>
+    </Page>
 </mvc:View>
