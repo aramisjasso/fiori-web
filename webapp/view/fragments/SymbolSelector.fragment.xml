@@ -4,7 +4,7 @@
   xmlns="sap.m">
   <ComboBox
     id="symbolSelector"
-    width="200px"
+    width="300px"
     placeholder="Selecciona un símbolo (TSLA, AAPL...)"
     change=".onSymbolChange"
     items="{symbolModel>/symbols}">

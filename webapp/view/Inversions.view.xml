@@ -1,41 +1,100 @@
 <mvc:View controllerName="com.inv.sapfiori.controller.Inversions"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
-    xmlns:l="sap.ui.layout"
-    xmlns:f="sap.ui.layout.form" 
-    xmlns:core="sap.ui.core" 
+    xmlns:l="sap.ui.layout"      xmlns:f="sap.ui.layout.form" xmlns:core="sap.ui.core"
+    xmlns:viz="sap.viz.ui5.controls"
+    xmlns:viz.data="sap.viz.ui5.data"
+    xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
     displayBlock="true">
-    <Page id="inversionsPage" title="{i18n>inversionsPageTitle}" showHeader="true">
-    <headerContent>
-      <core:Fragment fragmentName="com.inv.sapfiori.view.fragments.SymbolSelector" type="XML"/>
-    </headerContent>
+
+    <Page id="inversionsPage" title="{i18n>inversionsPageTitle}" showHeader="true"> <headerContent>
+            <core:Fragment fragmentName="com.inv.sapfiori.view.fragments.SymbolSelector" type="XML"/>
+        </headerContent>
+
         <content>
-            <FlexBox renderType="Bare" alignItems="Start" justifyContent="SpaceBetween" class="sapUiResponsivePadding">
-                <VBox class="sapUiSmallMarginEnd sapUiSmallMarginBottom" width="74%">                 
-                  <Table items="{priceData>/value}">
-                    <columns>
-                      <Column><Text text="Date"/></Column>
-                      <Column><Text text="Open"/></Column>
-                      <Column><Text text="High"/></Column>
-                      <Column><Text text="Low"/></Column>
-                      <Column><Text text="Close"/></Column>
-                      <Column><Text text="Volume"/></Column>
-                    </columns>
-                    <items>
-                      <ColumnListItem>
-                        <Text text="{priceData>DATE}"/>
-                        <Text text="{priceData>OPEN}"/>
-                        <Text text="{priceData>HIGH}"/>
-                        <Text text="{priceData>LOW}"/>
-                        <Text text="{priceData>CLOSE}"/>
-                        <Text text="{priceData>VOLUME}"/>
-                      </ColumnListItem>
-                    </items>
-                  </Table>
+            <FlexBox renderType="Bare" alignItems="Stretch" justifyContent="SpaceBetween" class="sapUiResponsivePadding">
+
+                <VBox class="sapUiSmallMarginEnd sapUiSmallMarginBottom" fitContainer="true" width="auto"> <layoutData>
+                        <FlexItemData growFactor="1" /> </layoutData>
+                    <IconTabBar expandable="false"> <items>
+                            <IconTabFilter text="Table" key="table">
+                                <Table items="{priceData>/value}"> <columns>
+                                        <Column><Text text="Date"/></Column>
+                                        <Column><Text text="Open"/></Column>
+                                        <Column><Text text="High"/></Column>
+                                        <Column><Text text="Low"/></Column>
+                                        <Column><Text text="Close"/></Column>
+                                        <Column><Text text="Volume"/></Column>
+                                    </columns>
+                                    <items>
+                                        <ColumnListItem>
+                                            <Text text="{priceData>DATE}"/>
+                                            <Text text="{priceData>OPEN}"/>
+                                            <Text text="{priceData>HIGH}"/>
+                                            <Text text="{priceData>LOW}"/>
+                                            <Text text="{priceData>CLOSE}"/>
+                                            <Text text="{priceData>VOLUME}"/>
+                                        </ColumnListItem>
+                                    </items>
+                                </Table>
+                            </IconTabFilter>
+
+                            <IconTabFilter text="Chart" key="chart">
+                                <Panel headerText="Gráfico de Precios" width="auto" class="sapUiResponsiveMargin" expandable="true" expanded="true">
+                                    <headerToolbar>
+                                        <OverflowToolbar>
+                                            <Title text="Gráfico de Precios"/>
+                                            <ToolbarSpacer/>
+                                            <Button icon="sap-icon://refresh" tooltip="Actualizar datos" press=".onRefreshChart"/>
+                                        </OverflowToolbar>
+                                    </headerToolbar>
+                                      <content>
+                                        <!--  <viz:VizFrame 
+                                          id="idVizFrame"
+                                          width="100%"
+                                          height="400px"
+                                          uiConfig="{applicationSet:'fiori'}"
+                                          busy="{= !${priceData>/value}.length }"
+                                          busyIndicatorDelay="0">
+                                          
+                                          <viz:dataset>
+                                            <viz.data.FlattenedDataset data="{priceData>/value}">
+                                              <viz.data.Dimensions>
+                                                <viz.data.DimensionDefinition 
+                                                  name="Fecha" 
+                                                  value="{priceData>DATE}"
+                                                  displayName="Fecha (dd/mm/yyyy)"/>
+                                              </viz.data.Dimensions>
+                                              <viz.data.Measures>
+                                                <viz.data.MeasureDefinition 
+                                                  name="Precio" 
+                                                  value="{priceData>CLOSE}"
+                                                  displayName="Precio de Cierre (USD)"/>
+                                              </viz.data.Measures>
+                                            </viz.data.FlattenedDataset>
+                                          </viz:dataset>
+                                          
+                                          <viz:feeds>
+                                            <viz.feeds.FeedItem 
+                                              uid="categoryAxis" 
+                                              type="Dimension" 
+                                              values="Fecha"/>
+                                            <viz.feeds.FeedItem 
+                                              uid="valueAxis" 
+                                              type="Measure" 
+                                              values="Precio"/>
+                                          </viz:feeds>
+                                          
+                                        </viz:VizFrame> -->
+                                      </content>
+                                </Panel>
+                            </IconTabFilter>
+                        </items>
+                    </IconTabBar>
                 </VBox>
 
-                <VBox class="sapUiSmallMarginBottom" width="33%"> 
-                  <core:Fragment fragmentName="com.inv.sapfiori.view.fragments.StrategyAnalysisPanel" type="XML" />
+                <VBox id="sidebarVBox" class="sapUiSmallMarginBottom" width="380px"> 
+                    <core:Fragment fragmentName="com.inv.sapfiori.view.fragments.StrategyAnalysisPanel" type="XML" />
                     <core:Fragment fragmentName="com.inv.sapfiori.view.fragments.StrategyResultPanel" type="XML" />
                 </VBox>
 

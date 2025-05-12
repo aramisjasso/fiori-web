@@ -17,15 +17,15 @@ sap.ui.define([
       switch(sKey) {
         case "security":
           oNavCon.to(this.byId("securityView"));
-          this._oRouter.navTo("security"); // Opcional: actualiza la URL
+          //this._oRouter.navTo("security"); 
           break;
         case "catalogs":
           oNavCon.to(this.byId("catalogsView"));
-          this._oRouter.navTo("catalogs");
+          //this._oRouter.navTo("catalogs");
           break;
         case "inversions":
           oNavCon.to(this.byId("inversionsView"));
-          this._oRouter.navTo("inversions");
+          //this._oRouter.navTo("inversions");
           break;
       }
     }
