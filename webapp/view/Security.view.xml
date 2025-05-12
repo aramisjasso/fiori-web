@@ -1,3 +1,12 @@
+<!--
+============================================================================
+VISTA PRINCIPAL DEL MÓDULO DE SEGURIDAD - SAP FIORI
+============================================================================
+Esta vista implementa la interfaz de usuario para el módulo de seguridad,
+incluyendo la gestión de usuarios y roles, así como sus privilegios asociados.
+La vista está organizada en pestañas para facilitar la navegación.
+-->
+
 <mvc:View
   controllerName="com.inv.sapfiori.controller.Security"
   xmlns:mvc="sap.ui.core.mvc"
@@ -7,17 +16,35 @@
   <Page title="Security Module">
     <content>
 
+      <!--
+      ========================================================================
+      BARRA DE PESTAÑAS PRINCIPAL (ICON TAB BAR)
+      ========================================================================
+      Organiza el contenido en pestañas para usuarios y roles,
+      cada una con sus propias funcionalidades específicas.
+      -->
       <IconTabBar>
-        <!-- Tab USERS -->
+        
+        <!--
+        ========================================================================
+        PESTAÑA DE USUARIOS
+        ========================================================================
+        Contiene la gestión de usuarios del sistema,
+        incluyendo la creación, visualización y eliminación.
+        -->
         <items>
           <IconTabFilter text="USERS" key="users" icon="sap-icon://employee">
             <VBox class="sapUiSmallMargin">
+              <!-- Barra de herramientas con acciones para usuarios -->
               <Toolbar>
                 <Button text="Crear Usuario" press="onCrearUsuario"/>
                 <Button text="Eliminar Usuario" press="onEliminarUsuario"/>
               </Toolbar>
 
-              <!-- Tabla de usuarios -->
+              <!-- 
+              Tabla de usuarios - Muestra la lista de usuarios
+              Enlazada al modelo "users" con ruta "/usuarios"
+              -->
               <Table id="tablaUsuarios" items="{users>/usuarios}" mode="SingleSelectMaster">
                 <columns>
                   <Column><Text text="ID"/></Column>
@@ -35,97 +62,181 @@
             </VBox>
           </IconTabFilter>
 
-          <!-- Tab ROLES -->
+          <!--
+          ========================================================================
+          PESTAÑA DE ROLES
+          ========================================================================
+          Gestiona los roles de seguridad del sistema,
+          permitiendo crear, visualizar y eliminar roles,
+          así como sus privilegios asociados.
+          -->
           <IconTabFilter text="ROLES" key="roles" icon="sap-icon://shield">
             <VBox class="sapUiSmallMargin">
+              <!-- Barra de herramientas con acciones para roles -->
               <Toolbar>
                 <Button text="Crear Rol" press="onCrearRol"/>
                 <Button text="Eliminar Rol" press="onEliminarRol"/>
+                <!-- Botón para actualizar el rol -->
+                <Button text="Actualizar Rol" press="onActualizarRol"/>
+                  <!-- Botón nuevo para actualizar/refrescar roles -->
+  <ToolbarSpacer/>
+  <Button 
+    icon="sap-icon://refresh" 
+    tooltip="Actualizar roles" 
+    press="onRefreshRoles"
+    type="Transparent"/>
               </Toolbar>
 
-              <!-- Tabla de roles -->
+              <!-- 
+              Tabla de roles - Muestra la lista de roles
+              Enlazada al modelo "roles" con ruta "/roles"
+              Permite selección múltiple con modo="MultiSelect"
+              -->
             <Table id="tablaRoles" items="{roles>/roles}" mode="MultiSelect">
-  <columns>
-    <Column><Text text="Role ID"/></Column>
-    <Column><Text text="Role Name"/></Column>
-    <Column><Text text="Description"/></Column>
-    <Column><Text text="Activo"/></Column>
-    <Column><Text text="Eliminado"/></Column>
-    <Column><Text text="Current"/></Column>
-    <Column><Text text="Fecha Registro"/></Column>
-    <Column><Text text="Hora Registro"/></Column>
-    <Column><Text text="Usuario Registro"/></Column>
-    <Column><Text text="Privilegios"/></Column>
-  </columns>
-  <items>
-    <ColumnListItem>
-      <cells>
-        <Text text="{roles>ROLEID}"/>
-        <Text text="{roles>ROLENAME}"/>
-        <Text text="{roles>DESCRIPTION}"/>
-        <Text text="{roles>DETAIL_ROW/ACTIVED}"/>
-        <Text text="{roles>DETAIL_ROW/DELETED}"/>
-        <Text text="{roles>DETAIL_ROW/DETAIL_ROW_REG/0/CURRENT}"/>
-        <Text text="{roles>DETAIL_ROW/DETAIL_ROW_REG/0/REGDATE}"/>
-        <Text text="{roles>DETAIL_ROW/DETAIL_ROW_REG/0/REGTIME}"/>
-        <Text text="{roles>DETAIL_ROW/DETAIL_ROW_REG/0/REGUSER}"/>
+              <columns>
+                <Column><Text text="Role ID"/></Column>
+                <Column><Text text="Role Name"/></Column>
+                <Column><Text text="Description"/></Column>
+                <Column><Text text="Activo"/></Column>
+                <Column><Text text="Eliminado"/></Column>
+                <Column><Text text="Current"/></Column>
+                <Column><Text text="Fecha Registro"/></Column>
+                <Column><Text text="Hora Registro"/></Column>
+                <Column><Text text="Usuario Registro"/></Column>
+                <Column><Text text="Privilegios"/></Column>
+              </columns>
+              <items>
+                <ColumnListItem>
+                  <cells>
+                    <!-- Campos básicos del rol -->
+                    <Text text="{roles>ROLEID}"/>
+                    <Text text="{roles>ROLENAME}"/>
+                    <Text text="{roles>DESCRIPTION}"/>
+                    
+                    <!-- Campos del detalle del rol -->
+                    <Text text="{roles>DETAIL_ROW/ACTIVED}"/>
+                    <Text text="{roles>DETAIL_ROW/DELETED}"/>
+                    
+                    <!-- Campos del registro de detalle -->
+                    <Text text="{roles>DETAIL_ROW/DETAIL_ROW_REG/0/CURRENT}"/>
+                    <Text text="{roles>DETAIL_ROW/DETAIL_ROW_REG/0/REGDATE}"/>
+                    <Text text="{roles>DETAIL_ROW/DETAIL_ROW_REG/0/REGTIME}"/>
+                    <Text text="{roles>DETAIL_ROW/DETAIL_ROW_REG/0/REGUSER}"/>
 
-     <!-- VBox para mostrar los privilegios como una lista -->
-        <VBox>
-          <!-- Usamos un Text para cada privilegio -->
-          <Text text="{roles>PRIVILEGES/0}" visible="{= ${roles>PRIVILEGES/0} !== '*' }"/>
-          <Text text="{roles>PRIVILEGES/1}" visible="{= ${roles>PRIVILEGES/1} !== '' }"/>
-          <Text text="{roles>PRIVILEGES/2}" visible="{= ${roles>PRIVILEGES/2} !== '' }"/>
-          <Text text="{roles>PRIVILEGES/3}" visible="{= ${roles>PRIVILEGES/3} !== '' }"/>
-          <!-- Se puede seguir añadiendo más elementos Text según sea necesario -->
-        </VBox>
-
-      </cells>
-    </ColumnListItem>
-  </items>
-</Table>
-
+                    <!-- 
+                    VBox para mostrar los privilegios como una lista 
+                    Cada privilegio se muestra en una línea separada
+                    Solo se muestran si hay contenido válido
+                    -->
+                    <VBox>
+                      <!-- Usamos un Text para cada privilegio -->
+                      <Text text="{roles>PRIVILEGES/0}" visible="{= ${roles>PRIVILEGES/0} !== '*' }"/>
+                      <Text text="{roles>PRIVILEGES/1}" visible="{= ${roles>PRIVILEGES/1} !== '' }"/>
+                      <Text text="{roles>PRIVILEGES/2}" visible="{= ${roles>PRIVILEGES/2} !== '' }"/>
+                      <Text text="{roles>PRIVILEGES/3}" visible="{= ${roles>PRIVILEGES/3} !== '' }"/>
+                      <!-- Se puede seguir añadiendo más elementos Text según sea necesario -->
+                    </VBox>
+                  </cells>
+                </ColumnListItem>
+              </items>
+            </Table>
             </VBox>
           </IconTabFilter>
-
         </items>
       </IconTabBar>
 
-  <Dialog id="createRoleDialog" title="Crear Rol" stretch="false">
-    <content>
-      <VBox class="sapUiSmallMargin">
-        <Label text="Role ID"/>
-        <Input id="roleIdInput" placeholder="Ingrese el ID del Rol"/>
+      <!--
+      ========================================================================
+      DIÁLOGO DE CREACIÓN DE ROL
+      ========================================================================
+      Diálogo modal para crear un nuevo rol en el sistema.
+      Incluye campos para la información básica del rol y
+      la funcionalidad para agregar privilegios.
+      -->
+      <Dialog id="createRoleDialog" title="Crear Rol" stretch="false">
+        <content>
+          <VBox class="sapUiSmallMargin">
+            <!-- Campos básicos del rol -->
+            <Label text="Role ID"/>
+            <Input id="roleIdInput" placeholder="Ingrese el ID del Rol"/>
 
-        <Label text="Role Name"/>
-        <Input id="roleNameInput" placeholder="Ingrese el Nombre del Rol"/>
+            <Label text="Role Name"/>
+            <Input id="roleNameInput" placeholder="Ingrese el Nombre del Rol"/>
 
-        <Label text="Description"/>
-        <Input id="roleDescriptionInput" placeholder="Ingrese la Descripción del Rol"/>
+            <Label text="Description"/>
+            <Input id="roleDescriptionInput" placeholder="Ingrese la Descripción del Rol"/>
 
-        <Label text="Active"/>
-        <Switch id="roleActiveSwitch" state="true"/>
+            <Label text="Active"/>
+            <Switch id="roleActiveSwitch" state="true"/>
 
-        <Label text="Privileges"/>
-        <VBox id="privilegesContainer">
-          <!-- Aquí se agregarán dinámicamente los privilegios -->
-        </VBox>
+            <!-- 
+            Sección de privilegios 
+            Incluye un contenedor para mostrar los privilegios agregados
+            y controles para agregar nuevos privilegios
+            -->
+            <Label text="Privileges"/>
+            <VBox id="privilegesContainer">
+              <!-- Aquí se agregarán dinámicamente los privilegios -->
+            </VBox>
 
-        <HBox>
-          <Input id="processIdInput" placeholder="Process ID" width="50%"/>
-          <Input id="privilegeIdInput" placeholder="Privilege ID" width="50%"/>
-          <Button text="Agregar Privilegio" press="onAddPrivilege"/>
-        </HBox>
-      </VBox>
-    </content>
-    <beginButton>
-      <Button text="Crear" press="onConfirmCreateRole"/>
-    </beginButton>
-    <endButton>
-      <Button text="Cancelar" press="onCloseRoleDialog"/>
-    </endButton>
-  </Dialog>
+            <!-- Controles para agregar nuevos privilegios -->
+            <HBox>
+              <Input id="processIdInput" placeholder="Process ID" width="50%"/>
+              <Input id="privilegeIdInput" placeholder="Privilege ID" width="50%"/>
+              <Button text="Agregar Privilegio" press="onAddPrivilege"/>
+            </HBox>
+          </VBox>
+        </content>
+        
+        <!-- Botones de acción del diálogo -->
+        <beginButton>
+          <Button text="Crear" press="onConfirmCreateRole"/>
+        </beginButton>
+        <endButton>
+          <Button text="Cancelar" press="onCloseRoleDialog"/>
+        </endButton>
+      </Dialog>
 
+      <!--
+      ========================================================================
+      DIÁLOGO DE ACTUALIZACIÓN DE ROL
+      ========================================================================
+      Diálogo modal para actualizar un rol existente en el sistema.
+      Incluye campos para la información básica del rol y
+      la funcionalidad para editar privilegios.
+      -->
+      <Dialog id="updateRoleDialog" title="Actualizar Rol" stretch="false">
+        <content>
+          <VBox class="sapUiSmallMargin">
+            <!-- Campos básicos del rol -->
+            <Label text="Role ID"/>
+            <Input id="updateRoleIdInput" editable="false"/>
+
+            <Label text="Role Name"/>
+            <Input id="updateRoleNameInput"/>
+
+            <Label text="Description"/>
+            <Input id="updateRoleDescriptionInput"/>
+
+            <Label text="Active"/>
+            <Switch id="updateRoleActiveSwitch"/>
+
+            <!-- Contenedor para mostrar y editar privilegios -->
+            <Label text="Privileges"/>
+            <VBox id="updatePrivilegesContainer">
+              <!-- Aquí se agregarán dinámicamente los privilegios existentes -->
+            </VBox>
+
+          
+          </VBox>
+        </content>
+        <beginButton>
+          <Button text="Actualizar" press="onConfirmUpdateRole"/>
+        </beginButton>
+        <endButton>
+          <Button text="Cancelar" press="onCloseUpdateRoleDialog"/>
+        </endButton>
+      </Dialog>
 
     </content>
   </Page>
