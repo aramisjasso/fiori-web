@@ -38,23 +38,37 @@ La vista está organizada en pestañas para facilitar la navegación.
               <!-- Barra de herramientas con acciones para usuarios -->
               <Toolbar>
                 <Button text="Crear Usuario" press="onCrearUsuario"/>
+                <Button text="Actualizar Usuario" press="onActualizarUsuario"/>
                 <Button text="Eliminar Usuario" press="onEliminarUsuario"/>
+                <ToolbarSpacer/>
+                <Button 
+                  icon="sap-icon://refresh" 
+                  tooltip="Actualizar usuarios" 
+                  press="onRefreshUsers"
+                  type="Transparent"/>
               </Toolbar>
 
-              <!-- 
-              Tabla de usuarios - Muestra la lista de usuarios
-              Enlazada al modelo "users" con ruta "/usuarios"
-              -->
+              <!-- Tabla de usuarios - Muestra la lista de usuarios -->
               <Table id="tablaUsuarios" items="{users>/usuarios}" mode="SingleSelectMaster">
                 <columns>
                   <Column><Text text="ID"/></Column>
                   <Column><Text text="Nombre"/></Column>
+                  <Column><Text text="Alias"/></Column>
+                  <Column><Text text="Email"/></Column>
+                  <Column><Text text="Teléfono"/></Column>
+                  <Column><Text text="Departamento"/></Column>
+                  <Column><Text text="Activo"/></Column>
                 </columns>
                 <items>
                   <ColumnListItem>
                     <cells>
-                      <Text text="{users>id}"/>
-                      <Text text="{users>nombre}"/>
+                      <Text text="{users>USERID}"/>
+                      <Text text="{users>USERNAME}"/>
+                      <Text text="{users>ALIAS}"/>
+                      <Text text="{users>EMAIL}"/>
+                      <Text text="{users>PHONENUMBER}"/>
+                      <Text text="{users>DEPARTMENT}"/>
+                      <Text text="{= ${users>DETAIL_ROW/ACTIVED} ? 'Sí' : 'No' }"/>
                     </cells>
                   </ColumnListItem>
                 </items>
@@ -90,9 +104,9 @@ La vista está organizada en pestañas para facilitar la navegación.
               <!-- 
               Tabla de roles - Muestra la lista de roles
               Enlazada al modelo "roles" con ruta "/roles"
-              Permite selección múltiple con modo="MultiSelect"
+              Permite selección única con modo="SingleSelectMaster"
               -->
-            <Table id="tablaRoles" items="{roles>/roles}" mode="MultiSelect">
+            <Table id="tablaRoles" items="{roles>/roles}" mode="SingleSelectMaster">
               <columns>
                 <Column><Text text="Role ID"/></Column>
                 <Column><Text text="Role Name"/></Column>
@@ -130,11 +144,9 @@ La vista está organizada en pestañas para facilitar la navegación.
                     -->
                     <VBox>
                       <!-- Usamos un Text para cada privilegio -->
-                      <Text text="{roles>PRIVILEGES/0}" visible="{= ${roles>PRIVILEGES/0} !== '*' }"/>
+                      <Text text="{roles>PRIVILEGES/0}" visible="{= ${roles>PRIVILEGES/0} !== '' }"/>
                       <Text text="{roles>PRIVILEGES/1}" visible="{= ${roles>PRIVILEGES/1} !== '' }"/>
                       <Text text="{roles>PRIVILEGES/2}" visible="{= ${roles>PRIVILEGES/2} !== '' }"/>
-                      <Text text="{roles>PRIVILEGES/3}" visible="{= ${roles>PRIVILEGES/3} !== '' }"/>
-                      <!-- Se puede seguir añadiendo más elementos Text según sea necesario -->
                     </VBox>
                   </cells>
                 </ColumnListItem>
@@ -225,8 +237,11 @@ La vista está organizada en pestañas para facilitar la navegación.
             <Label text="Privileges"/>
             <VBox id="updatePrivilegesContainer">
               <!-- Aquí se agregarán dinámicamente los privilegios existentes -->
+              <HBox>
+                <Input id="updateProcessIdInput" placeholder="Process ID" width="100%"/>
+                <Input id="updatePrivilegeIdInput" placeholder="Privilege ID" width="50%"/>
+              </HBox>
             </VBox>
-
           
           </VBox>
         </content>
@@ -235,6 +250,144 @@ La vista está organizada en pestañas para facilitar la navegación.
         </beginButton>
         <endButton>
           <Button text="Cancelar" press="onCloseUpdateRoleDialog"/>
+        </endButton>
+      </Dialog>
+
+      <!--
+      ========================================================================
+      DIÁLOGO DE ACTUALIZACIÓN DE USUARIO
+      ========================================================================
+      Diálogo modal para actualizar un usuario existente en el sistema.
+      Incluye campos para la información básica del usuario y
+      la funcionalidad para editar roles.
+      -->
+      <Dialog id="updateUserDialog" title="Actualizar Usuario" stretch="false">
+        <content>
+          <VBox class="sapUiSmallMargin">
+            <!-- Campos básicos del usuario -->
+            <Label text="User ID"/>
+            <Input id="updateUserIdInput" editable="false"/>
+
+            <Label text="Nombre Completo"/>
+            <Input id="updateUserNameInput"/>
+
+            <Label text="Alias"/>
+            <Input id="updateUserAliasInput"/>
+
+            <Label text="Email"/>
+            <Input id="updateUserEmailInput"/>
+
+            <Label text="Teléfono"/>
+            <Input id="updateUserPhoneInput"/>
+
+            <Label text="Departamento"/>
+            <Input id="updateUserDepartmentInput"/>
+
+            <Label text="Función"/>
+            <Input id="updateUserFunctionInput"/>
+
+            <Label text="Dirección"/>
+            <Input id="updateUserStreetInput"/>
+
+            <Label text="Código Postal"/>
+            <Input id="updateUserPostalCodeInput"/>
+
+            <Label text="Ciudad"/>
+            <Input id="updateUserCityInput"/>
+
+            <Label text="Estado"/>
+            <Input id="updateUserStateInput"/>
+
+            <Label text="País"/>
+            <Input id="updateUserCountryInput"/>
+
+            <Label text="Activo"/>
+            <Switch id="updateUserActiveSwitch"/>
+
+            <!-- Contenedor para mostrar y editar roles -->
+            <Label text="Roles"/>
+            <VBox id="updateUserRolesContainer">
+              <HBox>
+                <Input id="updateUserRoleIdInput" placeholder="Role ID" width="50%"/>
+                <Input id="updateUserRoleIdSapInput" placeholder="Role ID SAP" width="50%"/>
+              </HBox>
+            </VBox>
+          </VBox>
+        </content>
+        <beginButton>
+          <Button text="Actualizar" press="onConfirmUpdateUser"/>
+        </beginButton>
+        <endButton>
+          <Button text="Cancelar" press="onCloseUpdateUserDialog"/>
+        </endButton>
+      </Dialog>
+
+      <!--
+      ========================================================================
+      DIÁLOGO DE CREACIÓN DE USUARIO
+      ========================================================================
+      Diálogo modal para crear un nuevo usuario en el sistema.
+      Incluye campos para la información básica del usuario y
+      la funcionalidad para agregar roles.
+      -->
+      <Dialog id="createUserDialog" title="Crear Usuario" stretch="false">
+        <content>
+          <VBox class="sapUiSmallMargin">
+            <!-- Campos básicos del usuario -->
+            <Label text="User ID"/>
+            <Input id="createUserIdInput"/>
+
+            <Label text="Nombre Completo"/>
+            <Input id="createUserNameInput"/>
+
+            <Label text="Alias"/>
+            <Input id="createUserAliasInput"/>
+
+            <Label text="Email"/>
+            <Input id="createUserEmailInput"/>
+
+            <Label text="Teléfono"/>
+            <Input id="createUserPhoneInput"/>
+
+            <Label text="Departamento"/>
+            <Input id="createUserDepartmentInput"/>
+
+            <Label text="Función"/>
+            <Input id="createUserFunctionInput"/>
+
+            <Label text="Dirección"/>
+            <Input id="createUserStreetInput"/>
+
+            <Label text="Código Postal"/>
+            <Input id="createUserPostalCodeInput"/>
+
+            <Label text="Ciudad"/>
+            <Input id="createUserCityInput"/>
+
+            <Label text="Estado"/>
+            <Input id="createUserStateInput"/>
+
+            <Label text="País"/>
+            <Input id="createUserCountryInput"/>
+
+            <Label text="Activo"/>
+            <Switch id="createUserActiveSwitch"/>
+
+            <!-- Contenedor para agregar roles -->
+            <Label text="Roles"/>
+            <VBox id="createUserRolesContainer">
+              <HBox>
+                <Input placeholder="Role ID" width="50%"/>
+                <Input placeholder="Role ID SAP" width="50%"/>
+              </HBox>
+            </VBox>
+          </VBox>
+        </content>
+        <beginButton>
+          <Button text="Crear" press="onConfirmCreateUser"/>
+        </beginButton>
+        <endButton>
+          <Button text="Cancelar" press="onCloseCreateUserDialog"/>
         </endButton>
       </Dialog>
 
