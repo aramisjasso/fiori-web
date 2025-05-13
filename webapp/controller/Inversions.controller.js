@@ -1,13 +1,13 @@
 sap.ui.define([
   "sap/ui/core/mvc/Controller",
   "sap/ui/model/json/JSONModel",
-  "sap/m/MessageToast",             // De tus cambios (HEAD)
-  "sap/ui/core/format/DateFormat",  // De tus cambios (HEAD)
-  "sap/m/MessageBox",               // De tus cambios (HEAD)
-  "sap/viz/ui5/controls/VizFrame",  // De los cambios de tu compañero
-  "sap/viz/ui5/data/FlattenedDataset", // De los cambios de tu compañero
-  "sap/viz/ui5/controls/common/feeds/FeedItem" // De los cambios de tu compañero
-], function(Controller, JSONModel, MessageToast, DateFormat, MessageBox, VizFrame, FlattenedDataset, FeedItem) { // Parámetros combinados
+  "sap/m/MessageToast",             
+  "sap/ui/core/format/DateFormat",  
+  "sap/m/MessageBox",               
+  "sap/viz/ui5/controls/VizFrame",  
+  "sap/viz/ui5/data/FlattenedDataset", 
+  "sap/viz/ui5/controls/common/feeds/FeedItem" 
+], function(Controller, JSONModel, MessageToast, DateFormat, MessageBox, VizFrame, FlattenedDataset, FeedItem) { 
   "use strict";
 
   return Controller.extend("com.inv.sapfiori.controller.Inversions", {
@@ -21,10 +21,16 @@ sap.ui.define([
           this._initSymbolModel();
           
           // 2. Modelo para la tabla (vacío)
-          this.getView().setModel(new JSONModel(), "priceData");
+          this.getView().setModel(new JSONModel({
+            value: [], 
+            minValueLabel: "",
+            maxValueLabel: "",
+            firstDateLabel: "",
+            lastDateLabel: ""
+          }), "priceData");
 
           // 3. Configurar gráfica
-          this._configureChart();
+          //this._configureChart();
 
           // Inicializar el modelo de análisis (tus cambios)
           var oStrategyAnalysisModelData = {
@@ -42,7 +48,7 @@ sap.ui.define([
           var oStrategyAnalysisModel = new JSONModel(oStrategyAnalysisModelData);
           this.getView().setModel(oStrategyAnalysisModel, "strategyAnalysisModel");
 
-          //Inicialización modelo de resultados (tus cambios)
+          //Inicialización modelo de resultados
           var oStrategyResultModel = new JSONModel({
               hasResults: false,
               idSimulation: null,
@@ -124,20 +130,134 @@ sap.ui.define([
         }
       },
 
-      // Versión de _loadPriceData de tu compañero (actualiza symbolModel)
+      // Versión de _loadPriceData de tu compañero
       _loadPriceData: function(sSymbol) {
-      this.getView().getModel("symbolModel").setProperty("/selectedSymbol", sSymbol);
-      const oView = this.getView();
-      
-      fetch(`http://localhost:3033/api/inv/pricehistory?symbol=${sSymbol}`)
-        .then(response => response.json())
-        .then(data => {
-          oView.getModel("priceData").setData(data);
-        })
-        .catch(error => console.error("Error:", error));
-      },
+        const oView = this.getView();
+        const oPriceModel = oView.getModel("priceData");
+        const oPage = this.byId("inversionsPage");
 
-      // PANEL DE ESTRATEGIAS (tus métodos)
+        if (!sSymbol) {
+            MessageToast.show("Por favor, seleccione un símbolo.");
+            // Limpiar datos si no hay símbolo
+            oPriceModel.setData({ value: [], minValueLabel: "", maxValueLabel: "", firstDateLabel: "", lastDateLabel: "" });
+            return;
+        }
+
+        if (oPage) oPage.setBusy(true);
+        fetch(`http://localhost:3033/api/inv/priceshistory?symbol=${sSymbol}`)
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        let errorDetail = text;
+                        try {
+                            const jsonError = JSON.parse(text);
+                            errorDetail = jsonError.message || jsonError.error?.message || text;
+                        } catch (e) { }
+                        throw new Error(`Error ${response.status}: ${errorDetail}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+
+                let aProcessedDataForTableAndChart = [];
+                let sFirstDateLabel = "";               
+                let sLastDateLabel = "";                
+                let sMinValueLabel = "";                
+                let sMaxValueLabel = "";                
+                let minValue = Infinity;               
+                let maxValue = -Infinity;               
+
+                // Determinar si 'data' es el array o si está envuelto en 'data.value'
+                const dataArray = Array.isArray(data) ? data : (data && Array.isArray(data.value) ? data.value : null);
+
+                if (dataArray && dataArray.length > 0) {
+                    const oDateFormatForLabels = DateFormat.getDateInstance({ pattern: "dd/MM/yy" });
+
+                    // Procesar cada item para la tabla y el gráfico
+                    aProcessedDataForTableAndChart = dataArray.map((item, index) => {
+                        let timestamp = 0;          // Para el eje X
+                        let closeValueForChart = 0; // Para el eje Y
+                        let formattedDateForLabel = String(item.DATE);
+
+                        // convertir DATE a timestamp para el eje X del gráfico
+                        if (item.DATE) {
+                            const dateParts = String(item.DATE).split('-'); 
+                            let dateObject;
+                            if (dateParts.length === 3) {
+                                dateObject = new Date(Date.UTC(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2])));
+                            } else {
+                                dateObject = new Date(item.DATE);
+                            }
+
+                            if (dateObject && !isNaN(dateObject.getTime())) {
+                                timestamp = dateObject.getTime();
+                                formattedDateForLabel = oDateFormatForLabels.format(dateObject);
+                                if (index === 0) sFirstDateLabel = formattedDateForLabel;
+                                if (index === dataArray.length - 1) sLastDateLabel = formattedDateForLabel;
+                            } else {
+                                console.warn(`[DATOS] Fecha inválida o formato no reconocido: ${item.DATE}`);
+                            }
+                        }
+
+                        // Convertir CLOSE a número para el eje Y y calcular min/max
+                        if (item.CLOSE !== undefined && item.CLOSE !== null) {
+                            closeValueForChart = parseFloat(item.CLOSE);
+                            if (isNaN(closeValueForChart)) {
+                                console.warn(`[DATOS] Valor CLOSE no numérico: ${item.CLOSE}`);
+                                closeValueForChart = 0;
+                            } else {
+                             
+                                if (closeValueForChart < minValue) minValue = closeValueForChart;
+                                if (closeValueForChart > maxValue) maxValue = closeValueForChart;
+                            }
+                        }
+
+                        // Devolver el objeto con propiedades originales para la tabla
+                        // y las nuevas propiedades procesadas para el gráfico (TIMESTAMP_X, CLOSE_Y)
+                        return {
+                            DATE: item.DATE,
+                            OPEN: item.OPEN,
+                            HIGH: item.HIGH,
+                            LOW: item.LOW,
+                            CLOSE: item.CLOSE,
+                            VOLUME: item.VOLUME,
+                            TIMESTAMP_X: timestamp,    
+                            CLOSE_Y: closeValueForChart 
+                        };
+                    });
+
+                    // establecer etiquetas de min/max valor
+                    if (isFinite(minValue)) sMinValueLabel = `Min: ${minValue.toFixed(2)}`;
+                    if (isFinite(maxValue)) sMaxValueLabel = `Max: ${maxValue.toFixed(2)}`;
+
+                } else {
+                    console.warn(`[DATOS] La respuesta para ${sSymbol} no es un array válido o está vacía:`, data);
+                    MessageToast.show(`No se encontraron datos de precios para ${sSymbol}.`);
+                }
+
+                console.log(`[DATOS] Datos procesados para tabla/gráfico (${sSymbol}):`, aProcessedDataForTableAndChart);
+               
+                oPriceModel.setData({
+                    value: aProcessedDataForTableAndChart, 
+                    minValueLabel: sMinValueLabel,         
+                    maxValueLabel: sMaxValueLabel,        
+                    firstDateLabel: sFirstDateLabel,      
+                    lastDateLabel: sLastDateLabel        
+                });
+
+            })
+            .catch(error => {
+                console.error(`[DATOS] Error cargando o procesando datos de precios para ${sSymbol}:`, error.message);
+                oPriceModel.setData({ value: [], minValueLabel: "", maxValueLabel: "", firstDateLabel: "", lastDateLabel: "" });
+                MessageBox.error(`Error al cargar datos para ${sSymbol}: ${error.message}`);
+            })
+            .finally(() => {
+                if (oPage) oPage.setBusy(false);
+            });
+    },
+
+      // PANEL DE ESTRATEGIAS
       _setDefaultDates: function () { 
           var oStrategyAnalysisModel = this.getView().getModel("strategyAnalysisModel");
           var oToday = new Date();
@@ -202,7 +322,6 @@ sap.ui.define([
           // SIMULACIÓN API
           setTimeout(function() {
               var mockApiResult = {
-                  idSimulation: "SIM_" + new Date().getTime(),
                   signal: Math.random() > 0.5 ? "golden_cross" : "death_cross",
                   date_from: sFormattedStartDate,
                   date_to: sFormattedEndDate,
@@ -222,7 +341,6 @@ sap.ui.define([
               if (oFinalStrategyResultModel) {
                   oFinalStrategyResultModel.setData(mockApiResult);
                   oFinalStrategyResultModel.refresh(true);
-                  MessageToast.show(textStrategyDataLogged);
               } else {
                   console.error("oFinalStrategyResultModel no está definido en onRunAnalysisPress dentro de setTimeout");
               }
@@ -253,47 +371,59 @@ sap.ui.define([
       //     }
       // },
 
-      // MÉTODOS DE LA GRÁFICA (de los cambios de tu compañero)
-      _transformDataForChart: function(aData) {
-        // Transforma los datos del API al formato que necesita la gráfica
-        return aData.map(oItem => ({
-          DATE: oItem.DATE || oItem.date,
-          CLOSE: oItem.CLOSE || oItem.close
-        }));
-      },
+      // MÉTODOS DE LA GRÁFICA
+      // _transformDataForChart: function(aData) {
+      //   // Transforma los datos del API al formato que necesita la gráfica
+      //   return aData.map(oItem => ({
+      //     DATE: oItem.DATE || oItem.date,
+      //     CLOSE: oItem.CLOSE || oItem.close
+      //   }));
+      // },
 
-      _configureChart: function() {
-        const oVizFrame = this.byId("idVizFrame");
-        if (!oVizFrame) return; // Validación por si no encuentra el control
+      // _configureChart: function() {
+      //   const oVizFrame = this.byId("idVizFrame");
+      //   if (!oVizFrame) return; 
         
-        // Configuración de la gráfica
-        oVizFrame.setVizType("line");
-        oVizFrame.setVizProperties({
-          plotArea: {
-            dataLabel: { visible: false } // Mejor para líneas
-          },
-          valueAxis: {
-            title: { text: "Precio (USD)" }
-          },
-          categoryAxis: {
-            title: { text: "Fecha" },
-            formatString: "dd/MM" // Formato de fecha
-          },
-          title: {
-            text: "Histórico de Precios de Acciones"
-          }
-        });
+      //   // Configuración de la gráfica
+      //   oVizFrame.setVizType("line");
+      //   oVizFrame.setVizProperties({
+      //     plotArea: {
+      //       dataLabel: { visible: false } 
+      //     },
+      //     valueAxis: {
+      //       title: { text: "Precio (USD)" }
+      //     },
+      //     categoryAxis: {
+      //       title: { text: "Fecha" },
+      //       formatString: "dd/MM" 
+      //     },
+      //     title: {
+      //       text: "Histórico de Precios de Acciones"
+      //     }
+      //   });
         
-        // Opcional: Forzar redibujado al cambiar datos
-        oVizFrame.invalidate();
-      },
+      //   oVizFrame.invalidate();
+      // },
 
       onRefreshChart: function() {
         const oSymbolModel = this.getView().getModel("symbolModel");
         const sCurrentSymbol = oSymbolModel.getProperty("/selectedSymbol");
+
         if (sCurrentSymbol) {
-          this._loadPriceData(sCurrentSymbol);
+            // Refresca los datos de la tabla y el gráfico
+            this._loadPriceData(sCurrentSymbol);
+        } else {
+            // Opcional: Cargar un símbolo por defecto si no hay ninguno seleccionado
+            const aSymbols = oSymbolModel.getProperty("/symbols");
+            if (aSymbols && aSymbols.length > 0) {
+                const sDefaultSymbol = aSymbols[0].symbol;
+                oSymbolModel.setProperty("/selectedSymbol", sDefaultSymbol);
+                // Considera actualizar visualmente el ComboBox aquí también si es necesario
+                this._loadPriceData(sDefaultSymbol);
+            } else {
+                MessageToast.show("Por favor, seleccione un símbolo.");
+            }
         }
-      },
+    }
   });
 });

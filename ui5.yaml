@@ -21,3 +21,4 @@ framework:
     - name: sap.tnt
     - name: sap.ndc
     - name: sap.viz
+    - name: sap.suite.ui.microchart

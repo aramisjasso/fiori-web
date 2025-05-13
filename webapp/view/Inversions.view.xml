@@ -4,6 +4,7 @@
     xmlns:l="sap.ui.layout"      xmlns:f="sap.ui.layout.form" xmlns:core="sap.ui.core"
     xmlns:viz="sap.viz.ui5.controls"
     xmlns:viz.data="sap.viz.ui5.data"
+    xmlns:mc="sap.suite.ui.microchart"
     xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
     displayBlock="true">
 
@@ -49,44 +50,26 @@
                                         </OverflowToolbar>
                                     </headerToolbar>
                                       <content>
-                                        <!--  <viz:VizFrame 
-                                          id="idVizFrame"
-                                          width="100%"
-                                          height="400px"
-                                          uiConfig="{applicationSet:'fiori'}"
-                                          busy="{= !${priceData>/value}.length }"
-                                          busyIndicatorDelay="0">
-                                          
-                                          <viz:dataset>
-                                            <viz.data.FlattenedDataset data="{priceData>/value}">
-                                              <viz.data.Dimensions>
-                                                <viz.data.DimensionDefinition 
-                                                  name="Fecha" 
-                                                  value="{priceData>DATE}"
-                                                  displayName="Fecha (dd/mm/yyyy)"/>
-                                              </viz.data.Dimensions>
-                                              <viz.data.Measures>
-                                                <viz.data.MeasureDefinition 
-                                                  name="Precio" 
-                                                  value="{priceData>CLOSE}"
-                                                  displayName="Precio de Cierre (USD)"/>
-                                              </viz.data.Measures>
-                                            </viz.data.FlattenedDataset>
-                                          </viz:dataset>
-                                          
-                                          <viz:feeds>
-                                            <viz.feeds.FeedItem 
-                                              uid="categoryAxis" 
-                                              type="Dimension" 
-                                              values="Fecha"/>
-                                            <viz.feeds.FeedItem 
-                                              uid="valueAxis" 
-                                              type="Measure" 
-                                              values="Precio"/>
-                                          </viz:feeds>
-                                          
-                                        </viz:VizFrame> -->
-                                      </content>
+                                        <VBox width="100%"> <FlexBox justifyContent="SpaceBetween" width="100%">
+                                                <Text id="chartStartDateLabel" text="" class="sapUiTinyMarginBegin sapUiTinyMarginTopBottom"/>
+                                                <Text id="chartEndDateLabel" text="" class="sapUiTinyMarginEnd sapUiTinyMarginTopBottom"/>
+                                            </FlexBox>
+
+                                            <mc:LineMicroChart
+                                                id="idPriceLineChart"
+                                                points="{path: 'priceData>/value', templateShareable: false}"
+                                                visible="{= !!${priceData>/value} &amp;&amp; ${priceData>/value}.length > 0}"
+                                                showPoints="true"      showValue="true"       showLabel="true"       leftTopLabel="{priceData>/minValueLabel}"  rightTopLabel="{priceData>/maxValueLabel}" leftBottomLabel="{priceData>/firstDateLabel}"
+                                                rightBottomLabel="{priceData>/lastDateLabel}"
+                                                width="100%"
+                                                height="250px">        <mc:points>
+                                                    <mc:LineMicroChartPoint
+                                                        x="{priceData>TIMESTAMP_X}"
+                                                        y="{priceData>CLOSE_Y}" />
+                                                </mc:points>
+                                                </mc:LineMicroChart>
+                                        </VBox>
+                                    </content>
                                 </Panel>
                             </IconTabFilter>
                         </items>
