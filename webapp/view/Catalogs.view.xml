@@ -9,39 +9,47 @@
       <IconTabBar>
         <items>
           <!-- TAB: LABELS -->
-          <IconTabFilter text="LABELS" key="labels" icon="sap-icon://tag">
-            <VBox class="sapUiSmallMargin">
-              <Toolbar>
-                <Button text="Crear Label" press="onCrearLabel"/>
-                <Button text="Eliminar Label" press="onEliminarLabel"/>
-              </Toolbar>
+            <IconTabFilter text="LABELS" key="labels" icon="sap-icon://tag">
+              <VBox class="sapUiSmallMargin">
+                <Toolbar>
+                  <Button text="Crear Label" press="onCrearLabel"/>
+                  <Button text="Actualizar Labels" press="onActualizarLabels"/>
+                  <Button text="Eliminar Label" press="onEliminarLabel"/>
+                  <ToolbarSpacer/>
+                  <Button 
+                    icon="sap-icon://refresh" 
+                    tooltip="Actualizar Labels" 
+                    press="onRefreshLabels"
+                    type="Transparent"/>
+                </Toolbar>
 
-              <Table id="tablaLabels" items="{labels>/}" mode="SingleSelectMaster">
-                <columns>
-                  <Column><Text text="LABELID"/></Column>
-                  <Column><Text text="LABEL"/></Column>
-                  <Column><Text text="DESCRIPTION"/></Column>
-                  <Column><Text text="ACTIVED"/></Column>
-                  <Column><Text text="CURRENT"/></Column>
-                  <Column><Text text="REGDATE"/></Column>
-                  <Column><Text text="REGUSER"/></Column>
-                </columns>
-                <items>
-                  <ColumnListItem>
-                    <cells>
-                      <Text text="{labels>LABELID}"/>
-                      <Text text="{labels>LABEL}"/>
-                      <Text text="{labels>DESCRIPTION}"/>
-                      <Text text="{labels>DETAIL_ROW/ACTIVED}"/>
-                      <Text text="{labels>DETAIL_ROW/DETAIL_ROW_REG/1/CURRENT}"/>
-                      <Text text="{labels>DETAIL_ROW/DETAIL_ROW_REG/1/REGDATE}"/>
-                      <Text text="{labels>DETAIL_ROW/DETAIL_ROW_REG/1/REGUSER}"/>
-                    </cells>
-                  </ColumnListItem>
-                </items>
-              </Table>
-            </VBox>
-          </IconTabFilter>
+                <!-- Tabla con path correcto y campos alineados al JSON -->
+                <Table id="tablaLabels" items="{labels>/labels}" mode="SingleSelectMaster">
+                  <columns>
+                    <Column><Text text="LABELID"/></Column>
+                    <Column><Text text="LABEL"/></Column>
+                    <Column><Text text="DESCRIPCION"/></Column>
+                    <Column><Text text="COLECCION"/></Column>
+                    <Column><Text text="SECCION"/></Column>
+                    <Column><Text text="SECUENCIA"/></Column>
+                  </columns>
+                  <items>
+                    <ColumnListItem>
+                      <cells>
+                        <Text text="{labels>LABELID}"/>
+                        <Text text="{labels>LABEL}"/>
+                        <Text text="{labels>DESCRIPTION}"/>
+                        <Text text="{labels>COLLECTION}"/>
+                        <Text text="{labels>SECTION}"/>
+                        <Text text="{labels>SEQUENCE}"/>
+                      </cells>
+                    </ColumnListItem>
+                  </items>
+                </Table>
+              </VBox>
+            </IconTabFilter>
+
+            
 
           <!-- TAB: VALUES -->
           <IconTabFilter text="VALUES" key="values" icon="sap-icon://value-help">
@@ -90,6 +98,54 @@
           </IconTabFilter>
         </items>
       </IconTabBar>
+            <!--
+        DIÁLOGO DE CREACIÓN DE LABEL
+        ========================================================================
+        Diálogo modal para crear un nuevo Label en el sistema.
+        Incluye campos para la información básica del label y
+        un switch para marcar si está activo.
+      -->
+      <!-- Dialog para crear label -->
+        <Dialog id="createLabelDialog" title="Crear Label" stretch="false">
+          <VBox class="sapUiSmallMargin">
+            <!-- Input para Label ID -->
+            <Label text="Label ID"/>
+            <Input id="labelIdInput" placeholder="Ej: IdNewLabel" required="true"/>
+
+            <!-- Input para Label Name -->
+            <Label text="Label Name"/>
+            <Input id="labelNameInput" placeholder="Nombre del Label" required="true"/>
+
+            <!-- Input para Description -->
+            <Label text="Description"/>
+            <Input id="labelDescriptionInput" placeholder="Descripción"/>
+
+            <Input id="labelImageInput" placeholder="URL de imagen (opcional)"/>
+
+            <!-- Input para Index -->
+            <Label text="Index"/>
+            <Input id="labelIndexInput" placeholder="Ej: aplicacion-xyz"/>
+
+            <!-- Input para Collection -->
+            <Label text="Collection"/>
+            <Input id="labelCollectionInput" placeholder="Ej: roles-usuarios"/>
+
+            <!-- Input para Section -->
+            <Label text="Section"/>
+            <Input id="labelSectionInput" placeholder="Ej: seguridad"/>
+
+            <!-- Input para Sequence -->
+            <Label text="Sequence"/>
+            <Input id="labelSequenceInput" type="Number" placeholder="Ej: 10"/>
+          </VBox>
+
+          <buttons>
+            <Button text="Cancelar" press="onCloseLabelDialog"/>
+            <Button text="Crear" press="onConfirmCreateLabel"/>
+          </buttons>
+        </Dialog>
+
+      
     </content>
   </Page>
 </mvc:View>
