@@ -55,17 +55,27 @@
           <IconTabFilter text="VALUES" key="values" icon="sap-icon://value-help">
             <VBox class="sapUiSmallMargin">
               <Toolbar>
-                <Button text="Crear Valor" press="onCrearValor"/>
-                <Button text="Eliminar Valor" press="onEliminarValor"/>
+                <Button text="Crear Valor" press="onCreateValueDialog"/>
+                <Button text="Actualizar Valor" press="onUpdateValueDialog"/>
+                <Button text="Eliminar Valor" press="onDeleteValue"/>
+                <ToolbarSpacer/>
+                <Button 
+                  icon="sap-icon://refresh" 
+                  tooltip="Actualizar valores" 
+                  press="onRefreshValues"
+                  type="Transparent"/>
               </Toolbar>
 
-              <Table id="tablaValues" items="{values>/values}">
+              <Table id="tablaValues" items="{values>/values}" mode="SingleSelectMaster">
               <columns>
                 <Column>
                   <Text text="ID" />
                 </Column>
                 <Column>
                   <Text text="Nombre" />
+                </Column>
+                <Column >
+                  <Text text="Alias"/>
                 </Column>
                 <Column>
                   <Text text="Descripción" />
@@ -76,19 +86,42 @@
                 <Column>
                   <Text text="Label" />
                 </Column>
-                <Column >
-                  <Text text="Alias"/>
+                <Column>
+                  <Text text="Compañia ID" />
                 </Column>
+                <Column>
+                  <Text text="CEDI ID" /> 
+                </Column>
+                <Column>
+                  <Text text="Secuencia" /> 
+                </Column>
+                <Column>
+                  <Text text="Imagen" />
+                </Column>
+                <Column>
+                  <Text text="Activo" />
+                </Column>
+                <Column>
+                  <Text text="Eliminado" />
+                </Column>
+                
               </columns>
               <items>
                 <ColumnListItem>
                   <cells>
                     <Text text="{values>VALUEID}" />
                     <Text text="{values>VALUE}" />
+                     <Text text="{values>ALIAS}" />
                     <Text text="{values>DESCRIPTION}" />
                     <Text text="{values>VALUEPAID}" />
                     <Text text="{values>LABELID}" />
-                    <Text text="{values>ALIAS}" />
+                   
+                    <Text text="{values>COMPANYID}" />
+                    <Text text="{values>CEDIID}" />
+                    <Text text="{values>SEQUENCE}" />
+                    <Text text="{values>IMAGE}" />
+                    <Text text="{values>DETAIL_ROW/ACTIVED}" />
+                    <Text text="{values>DETAIL_ROW/DELETED}" />
                   </cells>
                 </ColumnListItem>
               </items>
@@ -98,6 +131,7 @@
           </IconTabFilter>
         </items>
       </IconTabBar>
+
             <!--
         DIÁLOGO DE CREACIÓN DE LABEL
         ========================================================================
@@ -146,6 +180,112 @@
         </Dialog>
 
       
+
+
+      <!-- Diálogo para crear un nuevo valor -->
+      <Dialog id="createValueDialog" title="Crear Valor" stretch="false">
+        <content>
+          <VBox class="sapUiSmallMargin">
+
+            <Label text="Label ID"/>
+            <Input id="CVD_labelIdInput" placeholder="Ingrese el Label ID"/>
+
+            <Label text="Value ID"/>
+            <Input id="CVD_valueIdInput" placeholder="Ingrese el Value ID"/>
+
+            <Label text="Value"/>
+            <Input id="CVD_valueInput" placeholder="Ingrese el Valor"/>
+
+            <Label text="Value Parent ID"/>
+            <Input id="CVD_valueParentIdInput" placeholder="Ingrese el Valor Padre"/>
+
+            <Label text="Compañia ID"/>
+            <Input id="CVD_companyIdInput" placeholder="Ingrese el ID de la Compañia"/>
+
+            <Label text="CEDI ID"/>
+            <Input id="CVD_cediIdInput" placeholder="Ingrese el ID del CEDI"/>
+
+            <Label text="Alias"/>
+            <Input id="CVD_aliasInput" placeholder="Ingrese el Alias"/>
+
+            <Label text="Sequence"/>
+            <Input id="CVD_sequenceInput" placeholder="Ingrese el Sequence"/>
+
+            <Label text="Description"/>
+            <Input id="CVD_descriptionInput" placeholder="Ingrese la Descripción"/>
+
+            <Label text="Image URL"/>
+            <Input id="CVD_imageInput" placeholder="Ingrese la URL de la Imagen"/>
+
+            <Label text="Active"/>
+            <Switch id="CVD_activeSwitch" state="true"/>
+
+            
+          </VBox>
+        </content>
+        
+        <!-- Botones de acción del diálogo -->
+        <beginButton>
+          <Button text="Crear" press="onConfirmCreateValue"/>
+        </beginButton>
+        <endButton>
+          <Button text="Cancelar" press="onCloseCreateValueDialog"/>
+        </endButton>
+      </Dialog>
+
+      <!-- Diálogo para actualizar un valor existente -->
+      <Dialog id="updateValueDialog" title="Crear Valor" stretch="false">
+        <content>
+          <VBox class="sapUiSmallMargin">
+            <!-- Campos básicos del valor -->
+            <Label text="Label ID"/>
+            <Input id="UVD_labelIdInput" editable="false"/>
+
+            <Label text="Value ID"/>
+            <Input id="UVD_valueIdInput" editable="false"/>
+
+            <Label text="Value"/>
+            <Input id="UVD_valueInput" placeholder="Ingrese el Valor"/>
+
+            <Label text="Value Parent ID"/>
+            <Input id="UVD_valueParentIdInput" editable="false"/>
+
+            <Label text="Compañia ID"/>
+            <Input id="UVD_companyIdInput" placeholder="Ingrese el ID de la Compañia"/>
+
+            <Label text="CEDI ID"/>
+            <Input id="UVD_cediIdInput" placeholder="Ingrese el ID del CEDI"/>
+
+            <Label text="Alias"/>
+            <Input id="UVD_aliasInput" placeholder="Ingrese el Alias"/>
+
+            <Label text="Sequence"/>
+            <Input id="UVD_sequenceInput" placeholder="Ingrese el Sequence"/>
+
+            <Label text="Description"/>
+            <Input id="UVD_descriptionInput" placeholder="Ingrese la Descripción"/>
+
+            <Label text="Image URL"/>
+            <Input id="UVD_imageInput" placeholder="Ingrese la URL de la Imagen"/>
+
+            <Label text="Active"/>
+            <Switch id="UVD_activeSwitch" state="true"/>
+
+            <Label text="Deleted"/>
+            <Switch id="UVD_deletedSwitch" state="false"/>
+
+          </VBox>
+        </content>
+        
+        <!-- Botones de acción del diálogo -->
+        <beginButton>
+          <Button text="Actualizar" press="onConfirmUpdateValue"/>
+        </beginButton>
+        <endButton>
+          <Button text="Cancelar" press="onCloseUpdateValueDialog"/>
+        </endButton>
+      </Dialog>
+
     </content>
   </Page>
 </mvc:View>

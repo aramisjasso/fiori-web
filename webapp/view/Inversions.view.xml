@@ -1,25 +1,27 @@
 <mvc:View controllerName="com.inv.sapfiori.controller.Inversions"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
-    xmlns:l="sap.ui.layout"      xmlns:f="sap.ui.layout.form" xmlns:core="sap.ui.core"
+    xmlns:l="sap.ui.layout" xmlns:f="sap.ui.layout.form" xmlns:core="sap.ui.core"
     xmlns:viz="sap.viz.ui5.controls"
     xmlns:viz.data="sap.viz.ui5.data"
-    xmlns:mc="sap.suite.ui.microchart"
-    xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
+    xmlns:mc="sap.suite.ui.microchart" xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
     displayBlock="true">
 
-    <Page id="inversionsPage" title="{i18n>inversionsPageTitle}" showHeader="true"> <headerContent>
+    <Page id="inversionsPage" title="{i18n>inversionsPageTitle}" showHeader="true">
+        <headerContent>
             <core:Fragment fragmentName="com.inv.sapfiori.view.fragments.SymbolSelector" type="XML"/>
         </headerContent>
-
         <content>
             <FlexBox renderType="Bare" alignItems="Stretch" justifyContent="SpaceBetween" class="sapUiResponsivePadding">
-
-                <VBox class="sapUiSmallMarginEnd sapUiSmallMarginBottom" fitContainer="true" width="auto"> <layoutData>
-                        <FlexItemData growFactor="1" /> </layoutData>
-                    <IconTabBar expandable="false"> <items>
+                <VBox class="sapUiSmallMarginEnd sapUiSmallMarginBottom" fitContainer="true" width="auto">
+                    <layoutData>
+                        <FlexItemData growFactor="1" />
+                    </layoutData>
+                    <IconTabBar expandable="false">
+                        <items>
                             <IconTabFilter text="Table" key="table">
-                                <Table items="{priceData>/value}"> <columns>
+                                <Table items="{priceData>/value}">
+                                    <columns>
                                         <Column><Text text="Date"/></Column>
                                         <Column><Text text="Open"/></Column>
                                         <Column><Text text="High"/></Column>
@@ -41,7 +43,7 @@
                             </IconTabFilter>
 
                             <IconTabFilter text="Chart" key="chart">
-                                <Panel headerText="Gráfico de Precios" width="auto" class="sapUiResponsiveMargin" expandable="true" expanded="true">
+                                <Panel headerText="Gráfico de Precios (VizFrame)" width="auto" class="sapUiResponsiveMargin" expandable="true" expanded="true">
                                     <headerToolbar>
                                         <OverflowToolbar>
                                             <Title text="Gráfico de Precios"/>
@@ -49,38 +51,47 @@
                                             <Button icon="sap-icon://refresh" tooltip="Actualizar datos" press=".onRefreshChart"/>
                                         </OverflowToolbar>
                                     </headerToolbar>
-                                      <content>
-                                        <VBox width="100%"> <FlexBox justifyContent="SpaceBetween" width="100%">
-                                                <Text id="chartStartDateLabel" text="" class="sapUiTinyMarginBegin sapUiTinyMarginTopBottom"/>
-                                                <Text id="chartEndDateLabel" text="" class="sapUiTinyMarginEnd sapUiTinyMarginTopBottom"/>
-                                            </FlexBox>
+                                    <content>
+                                        <viz:VizFrame
+                                            id="idVizFrame"
+                                            vizType="timeseries_line" width="100%"
+                                            height="400px"
+                                            uiConfig="{applicationSet:'fiori'}"
+                                            busy="{= !${priceData>/value} || ${priceData>/value}.length === 0 }"
+                                            busyIndicatorDelay="0">
+                                            <viz:dataset>
+                                                <viz.data:FlattenedDataset data="{priceData>/value}">
+                                                    <viz.data:dimensions>
+                                                        <viz.data:DimensionDefinition
+                                                            name="Fecha"
+                                                            value="{priceData>DATE}"
+                                                            dataType="date"/> </viz.data:dimensions>
+                                                    <viz.data:measures>
+                                                        <viz.data:MeasureDefinition
+                                                            name="PrecioCierre" value="{priceData>CLOSE}"/> </viz.data:measures>
+                                                </viz.data:FlattenedDataset>
+                                            </viz:dataset>
+                                            <viz:feeds>
+                                                <viz.feeds:FeedItem
+                                                    uid="timeAxis" type="Dimension"
+                                                    values="Fecha"/>
+                                                <viz.feeds:FeedItem
+                                                    uid="valueAxis"
+                                                    type="Measure"
+                                                    values="PrecioCierre"/>
+                                            </viz:feeds>
+                                        </viz:VizFrame>
 
-                                            <mc:LineMicroChart
-                                                id="idPriceLineChart"
-                                                points="{path: 'priceData>/value', templateShareable: false}"
-                                                visible="{= !!${priceData>/value} &amp;&amp; ${priceData>/value}.length > 0}"
-                                                showPoints="true"      showValue="true"       showLabel="true"       leftTopLabel="{priceData>/minValueLabel}"  rightTopLabel="{priceData>/maxValueLabel}" leftBottomLabel="{priceData>/firstDateLabel}"
-                                                rightBottomLabel="{priceData>/lastDateLabel}"
-                                                width="100%"
-                                                height="250px">        <mc:points>
-                                                    <mc:LineMicroChartPoint
-                                                        x="{priceData>TIMESTAMP_X}"
-                                                        y="{priceData>CLOSE_Y}" />
-                                                </mc:points>
-                                                </mc:LineMicroChart>
-                                        </VBox>
-                                    </content>
+                                        </content>
                                 </Panel>
                             </IconTabFilter>
                         </items>
                     </IconTabBar>
                 </VBox>
-
-                <VBox id="sidebarVBox" class="sapUiSmallMarginBottom" width="380px"> 
+                <VBox id="sidebarVBox" class="sapUiSmallMarginBottom" width="380px">
                     <core:Fragment fragmentName="com.inv.sapfiori.view.fragments.StrategyAnalysisPanel" type="XML" />
                     <core:Fragment fragmentName="com.inv.sapfiori.view.fragments.StrategyResultPanel" type="XML" />
                 </VBox>
-
             </FlexBox>
         </content>
     </Page>
