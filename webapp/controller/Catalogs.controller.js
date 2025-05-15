@@ -26,6 +26,7 @@ sap.ui.define([
      */
     onInit: function() {
       this._loadLabelsData();
+      this._loadValuesData();
     },
 
     // Cargar datos desde API
@@ -61,6 +62,115 @@ sap.ui.define([
     onCloseLabelDialog: function() {
       this.byId("createLabelDialog").close();
     },
+
+    onActualizarLabels: function() {
+      var oTable = this.byId("tablaLabels");
+      var oContext = oTable.getSelectedItem()?.getBindingContext("labels");
+
+      if (!oContext) {
+        MessageToast.show("Por favor, seleccione una label para eliminar.");
+        return;
+      }
+
+      var sPath = oContext.getPath();
+      var iIndex = parseInt(sPath.split("/")[2], 10);
+      var aLabels = this.getView().getModel("labels").getProperty("/labels");
+      var LABELID = aLabels[iIndex].LABELID;
+      var COMPANYID = aLabels[iIndex].COMPANYID;
+      var CEDIID = aLabels[iIndex].CEDIID;
+      var LABEL = aLabels[iIndex].LABEL;
+      var INDEX = aLabels[iIndex].INDEX;
+      var COLLECTION = aLabels[iIndex].COLLECTION;
+      var SECTION = aLabels[iIndex].SECTION;
+      var SEQUENCE = aLabels[iIndex].SEQUENCE;
+      var IMAGE = aLabels[iIndex].IMAGE;
+      var DESCRIPTION = aLabels[iIndex].DESCRIPTION;
+      var ACTIVED = aLabels[iIndex].DETAIL_ROW.ACTIVED;
+      var DELETED = aLabels[iIndex].DETAIL_ROW.DELETED;
+      var DETAIL_ROW_REG = aLabels[iIndex].DETAIL_ROW.DETAIL_ROW_REG;
+      var CURRENT = aLabels[iIndex].DETAIL_ROW.DETAIL_ROW_REG.CURRENT;  
+      var REGDATE = aLabels[iIndex].DETAIL_ROW.DETAIL_ROW_REG.REGDATE;
+      var REGUSER = aLabels[iIndex].DETAIL_ROW.DETAIL_ROW_REG.REGUSER;
+
+      //llenar el dialog con valores 
+      var oDialog = this.byId("UpcreateLabelDialog");
+
+      var oView = this.getView();
+      oView.byId("UplabelIdInput").setValue(LABELID || "");
+      oView.byId("UplabelNameInput").setValue(LABEL || "");
+      oView.byId("UplabelIndexInput").setValue(INDEX);
+      oView.byId("UplabelCollectionInput").setValue(COLLECTION);
+      oView.byId("UplabelSectionInput").setValue(SECTION);
+      oView.byId("UplabelSequenceInput").setValue(SEQUENCE);
+      oView.byId("UplabelImageInput").setValue(IMAGE);
+      oView.byId("UplabelDescriptionInput").setValue(DESCRIPTION);
+
+
+      if (!oDialog) {
+        // Si el diálogo no existe, lo creamos de manera programática
+        oDialog = sap.ui.xmlfragment("com.inv.sapfiori.view.UpcreateLabelDialog", this);
+        this.getView().addDependent(oDialog);
+      }
+      // Cargar los valores en los campos del diálogo
+      oDialog.open(); // Abrir el diálogo
+
+    },
+
+    // Método para confirmar la actualización de Label
+    onConfirmUpdateLabel: function () {
+      const oView = this.getView();
+      const updatedLabel = {
+        COMPANYID: "0",
+        CEDIID: "0",
+        LABELID: this.byId("UplabelIdInput").getValue(),
+        LABEL: this.byId("UplabelNameInput").getValue(),
+        INDEX: this.byId("UplabelIndexInput").getValue(),
+        COLLECTION: this.byId("UplabelCollectionInput").getValue(),
+        SECTION: this.byId("UplabelSectionInput").getValue(),
+        SEQUENCE: Number(this.byId("UplabelSequenceInput").getValue()) || 0,
+        IMAGE: this.byId("UplabelImageInput") ? this.byId("UplabelImageInput").getValue() : "",
+        DESCRIPTION: this.byId("UplabelDescriptionInput").getValue(),
+        DETAIL_ROW: {
+          ACTIVED: true,
+          DELETED: false,
+          DETAIL_ROW_REG: {
+            CURRENT: true,
+            REGDATE: new Date().toISOString(),
+            REGUSER: "Oscar"
+          }
+        }
+      };
+      const LABELID = this.byId("UplabelIdInput").getValue();
+      fetch(`http://localhost:3033/api/catalogos/updateLabel?type=1&id=${LABELID}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          label: updatedLabel
+        })
+      })
+
+      .then(async response => {
+        const responseText = await response.text();
+        if (!response.ok) {
+          throw new Error("Error del servidor: " + responseText);
+        }
+        MessageToast.show("Label actualizado exitosamente");
+        this.byId("UpcreateLabelDialog").close();
+        this._loadLabelsData();
+      })
+      .catch(error => {
+        MessageBox.error("Error al actualizar label: " + error.message);
+      });
+    },
+    // Método para cerrar el diálogo de actualización
+
+    UpOnCloseLabelDialog: function() {
+      this.byId("UpcreateLabelDialog").close();
+    },
+
+
 
     // Confirmar creación
     onConfirmCreateLabel: function () {
@@ -112,9 +222,77 @@ fetch("http://localhost:3033/api/catalogos/createLabel", {
 });
 },
 
-    // Metodo para cargar los datos de valores
+    
+/* ========================
+     * Eliminación de valores
+     * ========================
+    */
+
+    onEliminarLabel: function () {
+      var oTable = this.byId("tablaLabels");
+      var oContext = oTable.getSelectedItem()?.getBindingContext("labels");
+
+      if (!oContext) {
+        MessageToast.show("Por favor, seleccione una label para eliminar.");
+        return;
+      }
+
+      var sPath = oContext.getPath();
+      var iIndex = parseInt(sPath.split("/")[2], 10);
+      var aLabels = this.getView().getModel("labels").getProperty("/labels");
+      var LABELID = aLabels[iIndex].LABELID;
+
+      // Hacer fetch POST con acción delete
+      fetch(`http://localhost:3033/api/catalogos/deleteLabelOrValue?type=1&id=${LABELID}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+        .then(async (response) => {
+          const data = await response.json();
+
+          if (!response.ok) {
+            const errorMsg = data?.error?.message || data?.message || "Error desconocido al eliminar el label";
+            throw new Error(errorMsg);
+          }
+
+          MessageToast.show("Valor eliminado con éxito");
+          aLabels.splice(iIndex, 1);
+          this.getView().getModel("labels").setProperty("/labels", aLabels);
+          this.onRefreshLabels(); // Recargar los datos
+        })
+        .catch(error => {
+          MessageBox.error(error.message || "Ocurrió un error al eliminar el value");
+        });
+    },
+
+
     
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Metodo para cargar los datos de valores
     _loadValuesData: function () {
         var sUrl = "http://localhost:3033/api/catalogos/getAllLabels?type=2";
 

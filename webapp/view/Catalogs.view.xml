@@ -179,6 +179,46 @@
           </buttons>
         </Dialog>
 
+        <!-- Dialog para crear label -->
+        <Dialog id="UpcreateLabelDialog" title="Actualizar Label" stretch="false">
+          <VBox class="sapUiSmallMargin">
+            <!-- Input para Label ID -->
+            <Label text="Label ID"/>
+            <Input id="UplabelIdInput" placeholder="Ej: IdNewLabel" required="true" editable="false"/>
+
+            <!-- Input para Label Name -->
+            <Label text="Label Name"/>
+            <Input id="UplabelNameInput" placeholder="Nombre del Label" required="true"/>
+
+            <!-- Input para Description -->
+            <Label text="Description"/>
+            <Input id="UplabelDescriptionInput" placeholder="Descripción"/>
+
+            <Input id="UplabelImageInput" placeholder="URL de imagen (opcional)"/>
+
+            <!-- Input para Index -->
+            <Label text="Index"/>
+            <Input id="UplabelIndexInput" placeholder="Ej: aplicacion-xyz"/>
+
+            <!-- Input para Collection -->
+            <Label text="Collection"/>
+            <Input id="UplabelCollectionInput" placeholder="Ej: roles-usuarios"/>
+
+            <!-- Input para Section -->
+            <Label text="Section"/>
+            <Input id="UplabelSectionInput" placeholder="Ej: seguridad"/>
+
+            <!-- Input para Sequence -->
+            <Label text="Sequence"/>
+            <Input id="UplabelSequenceInput" type="Number" placeholder="Ej: 10"/>
+          </VBox>
+
+          <buttons>
+            <Button text="Cancelar" press="UpOnCloseLabelDialog"/>
+            <Button text="Actualizar" press="onConfirmUpdateLabel"/>
+          </buttons>
+        </Dialog>
+
       
 
 
