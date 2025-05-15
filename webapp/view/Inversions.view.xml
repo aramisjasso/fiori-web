@@ -48,6 +48,15 @@
                                         <OverflowToolbar>
                                             <Title text="Gráfico de Precios"/>
                                             <ToolbarSpacer/>
+                                            <Select id="timeIntervalSelect" change=".onTimeIntervalChange">
+                                                <items>
+                                                    <core:Item key="1D" text="Último día"/>
+                                                    <core:Item key="1W" text="Última semana"/>
+                                                    <core:Item key="1M" text="Último mes"/>
+                                                    <core:Item key="1Y" text="Último año"/>
+                                                    <core:Item key="ALL" text="Historial completo"/>
+                                                </items>
+                                            </Select>
                                             <Button icon="sap-icon://refresh" tooltip="Actualizar datos" press=".onRefreshChart"/>
                                         </OverflowToolbar>
                                     </headerToolbar>
@@ -58,17 +67,23 @@
                                             height="400px"
                                             uiConfig="{applicationSet:'fiori'}"
                                             busy="{= !${priceData>/value} || ${priceData>/value}.length === 0 }"
-                                            busyIndicatorDelay="0">
+                                            visible="{= ${priceData>/value}.length > 0 }"
+                                            busyIndicatorDelay="0"
+                                            selectData=".onDataPointSelect">
                                             <viz:dataset>
                                                 <viz.data:FlattenedDataset data="{priceData>/value}">
                                                     <viz.data:dimensions>
                                                         <viz.data:DimensionDefinition
                                                             name="Fecha"
                                                             value="{priceData>DATE}"
-                                                            dataType="date"/> </viz.data:dimensions>
+                                                            dataType="date"/>
+                                                    </viz.data:dimensions>
                                                     <viz.data:measures>
                                                         <viz.data:MeasureDefinition
-                                                            name="PrecioCierre" value="{priceData>CLOSE}"/> </viz.data:measures>
+                                                            name="PrecioCierre" value="{priceData>CLOSE}"/>
+                                                        <viz.data:MeasureDefinition
+                                                            name="PrecioApertura" value="{priceData>OPEN}"/> <!-- Nueva medida -->
+                                                    </viz.data:measures>
                                                 </viz.data:FlattenedDataset>
                                             </viz:dataset>
                                             <viz:feeds>
@@ -76,13 +91,14 @@
                                                     uid="timeAxis" type="Dimension"
                                                     values="Fecha"/>
                                                 <viz.feeds:FeedItem
-                                                    uid="valueAxis"
-                                                    type="Measure"
+                                                    uid="valueAxis" type="Measure"
                                                     values="PrecioCierre"/>
+                                                <viz.feeds:FeedItem
+                                                    uid="valueAxis" type="Measure"
+                                                    values="PrecioApertura"/> 
                                             </viz:feeds>
                                         </viz:VizFrame>
-
-                                        </content>
+                                    </content>
                                 </Panel>
                             </IconTabFilter>
                         </items>
