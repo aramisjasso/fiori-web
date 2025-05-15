@@ -10,7 +10,7 @@
     select=".onTabSelect"
     class="sapUiNoContentPadding">
     <items>
-      <IconTabFilter text="Inversions" key="inversions" />
+      <IconTabFilter text="Investments" key="investments" />
       <IconTabFilter text="Security" key="security" />
       <IconTabFilter text="Catalogs" key="catalogs" />
     </items>
@@ -21,7 +21,7 @@
     height="100%"
     class="sapUiNoContentPadding">
     <pages>
-      <mvc:XMLView viewName="com.inv.sapfiori.view.Inversions" id="inversionsView"/>
+      <mvc:XMLView viewName="com.inv.sapfiori.view.Investments" id="investmentsView"/>
       <mvc:XMLView viewName="com.inv.sapfiori.view.Security" id="securityView"/>
       <mvc:XMLView viewName="com.inv.sapfiori.view.Catalogs" id="catalogsView"/>
     </pages>

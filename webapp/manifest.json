@@ -107,9 +107,9 @@
           "target": "catalogs"
         },
         {
-          "pattern": "inversions",
-          "name": "inversions",
-          "target": "inversions"
+          "pattern": "investments",
+          "name": "investments",
+          "target": "investments"
         }
       ],
       "targets": {

@@ -10,7 +10,7 @@ sap.ui.define([
 ], function(Controller, JSONModel, MessageToast, DateFormat, MessageBox, VizFrame, FlattenedDataset, FeedItem) { 
   "use strict";
 
-  return Controller.extend("com.inv.sapfiori.controller.Inversions", {
+  return Controller.extend("com.inv.sapfiori.controller.Investments", {
 
       _oResourceBundle: null,
       _bSidebarExpanded: true, 
@@ -123,7 +123,7 @@ sap.ui.define([
         this.getView().setModel(oSymbolModel, "symbolModel");
       },
 
-      onSymbolChange: function(oEvent) {
+      /* onSymbolChange: function(oEvent) {
         const sSymbol = oEvent.getSource().getSelectedKey();
         this._loadPriceData(sSymbol).then(aData => {
             const oPriceModel = this.getView().getModel("priceData");
@@ -132,60 +132,7 @@ sap.ui.define([
         }).catch(error => {
             console.error("Error al cargar los datos del símbolo:", error.message);
         });
-    },
-
-      _loadPriceData: function(sSymbol) {
-        const oView = this.getView();
-        const oPriceModel = oView.getModel("priceData");
-        const oPage = this.byId("inversionsPage");
-    
-        if (!sSymbol) {
-            MessageToast.show("Por favor, seleccione un símbolo.");
-            oPriceModel.setData({ value: [] });
-            return Promise.resolve([]); // Devuelve una promesa vacía si no hay símbolo
-        }
-    
-        if (oPage) oPage.setBusy(true);
-        return fetch(`http://localhost:3033/api/inv/priceshistory?symbol=${sSymbol}`) // Devuelve la promesa
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        let errorDetail = text;
-                        try {
-                            const jsonError = JSON.parse(text);
-                            errorDetail = jsonError.message || jsonError.error?.message || text;
-                        } catch (e) { }
-                        throw new Error(`Error ${response.status}: ${errorDetail}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                let aTransformedData = [];
-                const dataArray = Array.isArray(data) ? data : (data && Array.isArray(data.value) ? data.value : null);
-    
-                if (dataArray) {
-                    aTransformedData = this._transformDataForVizFrame(dataArray);
-                } else {
-                    console.warn(`[VIZFRAME] Estructura de datos inesperada para ${sSymbol}`, data);
-                }
-                oPriceModel.setData({ value: aTransformedData });
-    
-                // Configurar el gráfico después de cargar los datos
-                this._configureChart();
-                return aTransformedData; // Devuelve los datos transformados
-            })
-            .catch(error => {
-                console.error(`[DATOS] Error cargando o procesando datos de precios para ${sSymbol}:`, error.message);
-                oPriceModel.setData({ value: [] });
-                MessageBox.error(`Error al cargar datos para ${sSymbol}: ${error.message}`);
-                throw error; // Propaga el error
-            })
-            .finally(() => {
-                if (oPage) oPage.setBusy(false);
-            });
-    },
-
+    }, */
     _transformDataForVizFrame: function(aApiData) {
         if (!aApiData || !Array.isArray(aApiData)) {
             return [];
@@ -236,7 +183,7 @@ sap.ui.define([
                 text: "Histórico de Precios de Acciones"
             },
             legend: {
-                visible: false
+                visible: true
             },
             toolTip: {
                 visible: true,
@@ -270,82 +217,76 @@ sap.ui.define([
           oStrategyAnalysisModel.setProperty("/controlsVisible", !!sSelectedKey);
       },
 
-      onRunAnalysisPress: function () {
-          var oStrategyAnalysisModel = this.getView().getModel("strategyAnalysisModel");
-          var oFinalStrategyResultModel = this.getView().getModel("strategyResultModel"); // Corregido
-          var oResourceBundle = this._oResourceBundle; 
-          var oPage = this.getView().byId("inversionsPage"); 
+      onRunAnalysisPress: function() {
+    var oView = this.getView();
+    var oStrategyModel = oView.getModel("strategyAnalysisModel");
+    var oResultModel = oView.getModel("strategyResultModel");
+    var sSymbol = oView.byId("symbolSelector").getSelectedKey();
 
-          var sStrategyKey = oStrategyAnalysisModel.getProperty("/strategyKey");
-          var sLongSMA = oStrategyAnalysisModel.getProperty("/longSMA");
-          var sShortSMA = oStrategyAnalysisModel.getProperty("/shortSMA");
-          var oStartDate = oStrategyAnalysisModel.getProperty("/startDate");
-          var oEndDate = oStrategyAnalysisModel.getProperty("/endDate");
+    // Validaciones básicas
+    if (!oStrategyModel.getProperty("/strategyKey")) {
+        MessageBox.warning("Seleccione una estrategia");
+        return;
+    }
+    if (!sSymbol) {
+        MessageBox.warning("Seleccione un símbolo (ej: AAPL)");
+        return;
+    }
 
-          var oDateFormat = DateFormat.getDateInstance({pattern: "yyyy-MM-dd"});
-          var sFormattedStartDate = oStartDate ? oDateFormat.format(oStartDate) : "N/A";
-          var sFormattedEndDate = oEndDate ? oDateFormat.format(oEndDate) : "N/A";
+    // Configurar petición
+    var oRequestBody = {
+        symbol: sSymbol,
+        startDate: this._formatDate(oStrategyModel.getProperty("/startDate")),
+        endDate: this._formatDate(oStrategyModel.getProperty("/endDate")),
+        amount: 1000,
+        userId: "ARAMIS",
+        specs: `SHORT:${oStrategyModel.getProperty("/shortSMA")}&LONG:${oStrategyModel.getProperty("/longSMA")}`
+    };
 
-          var textWarningSelectStrategy = "Por favor, seleccione una estrategia (fallback)";
-          var textStrategyDataLogged = "Parámetros enviados a consola (fallback)";
+    // Llamada a la API
+    fetch("http://localhost:3033/api/inv/simulation?strategy=macrossover", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(oRequestBody)
+    })
+    .then(response => response.ok ? response.json() : Promise.reject(response))
+    .then(data => {
+        console.log("Datos recibidos:", data);
+        
+        // Guardar datos en el modelo
+        oResultModel.setData({
+            hasResults: true,
+            chart_data: this._prepareTableData(data.value.chart_data || []),
+            signals: data.value.signals || [],
+            result: data.value.result || 0
+        });
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        MessageBox.error("Error al obtener datos de simulación");
+    });
+},
 
-          if (oResourceBundle && typeof oResourceBundle.getText === 'function') {
-              textWarningSelectStrategy = oResourceBundle.getText("warningSelectStrategy");
-              textStrategyDataLogged = oResourceBundle.getText("strategyDataLogged");
-          } else {
-              console.warn("ResourceBundle no disponible en onRunAnalysisPress. Usando textos fallback.");
-          }
+// Función auxiliar para formatear fechas
+_formatDate: function(oDate) {
+    return oDate ? DateFormat.getDateInstance({pattern: "yyyy-MM-dd"}).format(oDate) : null;
+},
 
-          if (!sStrategyKey) {
-              MessageBox.warning(textWarningSelectStrategy);
-              return;
-          }
-
-          var aStrategies = oStrategyAnalysisModel.getProperty("/strategies");
-          var oSelectedStrategyObject = aStrategies.find(function(strategy) {
-              return strategy.key === sStrategyKey;
-          });
-          var sStrategyText = oSelectedStrategyObject ? oSelectedStrategyObject.text : sStrategyKey; 
-
-          console.log("--- Parámetros para Análisis de Estrategia ---");
-          console.log("Estrategia Seleccionada: " + sStrategyText + " (Key: " + sStrategyKey + ")");
-          console.log("Long SMA: " + sLongSMA);
-          console.log("Short SMA: " + sShortSMA);
-          console.log("Fecha de Inicio: " + sFormattedStartDate);
-          console.log("Fecha de Fin: " + sFormattedEndDate);
-
-          if (oPage) oPage.setBusy(true);
-
-          // SIMULACIÓN API
-          setTimeout(function() {
-              var mockApiResult = {
-                  signal: Math.random() > 0.5 ? "golden_cross" : "death_cross",
-                  date_from: sFormattedStartDate,
-                  date_to: sFormattedEndDate,
-                  moving_averages: {
-                      short: parseInt(sShortSMA),
-                      long: parseInt(sLongSMA)
-                  },
-                  signals: [
-                      { date: new Date(2024, 0, 10), type: "buy", price: parseFloat((Math.random() * 10 + 150).toFixed(2)), confidence: "high" },
-                      { date: new Date(2024, 0, 20), type: "sell", price: parseFloat((Math.random() * 10 + 160).toFixed(2)), confidence: "medium" }
-                  ],
-                  chart_data: {},
-                  result: parseFloat((Math.random() * 20000 - 5000).toFixed(2))
-              };
-          
-              mockApiResult.hasResults = true;
-              if (oFinalStrategyResultModel) {
-                  oFinalStrategyResultModel.setData(mockApiResult);
-                  oFinalStrategyResultModel.refresh(true);
-              } else {
-                  console.error("oFinalStrategyResultModel no está definido en onRunAnalysisPress dentro de setTimeout");
-              }
-          
-              if (oPage) oPage.setBusy(false);
-          }.bind(this), 1500);
-      },
-
+// Función auxiliar para preparar datos para la tabla
+_prepareTableData: function(aData) {
+    if (!Array.isArray(aData)) return [];
+    
+    return aData.map(oItem => ({
+        DATE: oItem.date,
+        OPEN: oItem.open,
+        HIGH: oItem.high,
+        LOW: oItem.low,
+        CLOSE: oItem.close,
+        VOLUME: oItem.volume,
+        SHORT_MA: oItem.short_ma,
+        LONG_MA: oItem.long_ma
+    }));
+},
       // Método del Sidebar
       // onToggleSidebarPress: function() {
       //     var oSidebarLayoutData = this.byId("sidebarLayoutData"); 
