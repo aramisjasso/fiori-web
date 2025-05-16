@@ -1,1 +1,4 @@
-/* Enter your custom styles here */
+.customSuccessText {
+    color: #97dd40; 
+    font-weight: bold;
+}

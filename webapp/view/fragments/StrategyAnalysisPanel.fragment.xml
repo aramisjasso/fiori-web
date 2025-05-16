@@ -6,9 +6,9 @@
         <content>
             <f:SimpleForm id="strategyAnalysisFormInFragment" editable="true" layout="ResponsiveGridLayout"
                 labelSpanXL="4" labelSpanL="4" labelSpanM="12" labelSpanS="12"
-                adjustLabelSpan="false" emptySpanXL="0" emptySpanL="0" emptySpanM="0" emptySpanS="0"
-                columnsXL="1" columnsL="1" columnsM="1" singleContainerFullSize="false">
+                columnsXL="2" columnsL="2" columnsM="1" singleContainerFullSize="false">
                 <f:content>
+
                     <Label text="{i18n>strategyLabelText}" required="true"/>
                     <ComboBox id="strategyComboBoxInFragment"
                         items="{strategyAnalysisModel>/strategies}" selectionChange=".onStrategyChange"
@@ -17,14 +17,22 @@
                         <core:Item key="{strategyAnalysisModel>key}" text="{strategyAnalysisModel>text}"/>
                     </ComboBox>
 
-                    <VBox id="strategyInputsVBoxInFragment" visible="{strategyAnalysisModel>/controlsVisible}" width="100%"> <f:SimpleForm id="strategyParamsFormInFragment" editable="true" layout="ResponsiveGridLayout"
-                            labelSpanXL="4" labelSpanL="4" labelSpanM="12" labelSpanS="12"
-                            emptySpanXL="0" emptySpanL="0" emptySpanM="0" emptySpanS="0"
-                            columnsXL="1" columnsL="1" columnsM="1" singleContainerFullSize="false">
-                            <f:content>
+                    <VBox visible="{strategyAnalysisModel>/controlsVisible}">
+
+                        <HBox justifyContent="SpaceBetween" width="100%" renderType="Bare" class="sapUiTinyMarginTop">
+                            <VBox width="48%">
                                 <Label text="{i18n>longSMALabelText}"/>
-                                <Input id="longSMAInputInFragment" value="{strategyAnalysisModel>/longSMA}" type="Number" placeholder="Ej: 200" width="100%"/> <Label text="{i18n>shortSMALabelText}"/>
-                                <Input id="shortSMAInputInFragment" value="{strategyAnalysisModel>/shortSMA}" type="Number" placeholder="Ej: 50" width="100%"/> <Label text="{i18n>startDateLabelText}"/>
+                                <Input id="longSMAInputInFragment" value="{strategyAnalysisModel>/longSMA}" type="Number" placeholder="Ej: 200" width="100%"/>
+                            </VBox>
+                            <VBox width="48%">
+                                <Label text="{i18n>shortSMALabelText}"/>
+                                <Input id="shortSMAInputInFragment" value="{strategyAnalysisModel>/shortSMA}" type="Number" placeholder="Ej: 50" width="100%"/>
+                            </VBox>
+                        </HBox>
+
+                        <HBox justifyContent="SpaceBetween" width="100%" renderType="Bare" class="sapUiTinyMarginTop">
+                            <VBox width="48%">
+                                <Label text="{i18n>startDateLabelText}"/>
                                 <DatePicker id="startDatePickerInFragment"
                                     value="{
                                         path: 'strategyAnalysisModel>/startDate', type: 'sap.ui.model.type.Date',
@@ -32,7 +40,8 @@
                                     }"
                                     displayFormat="long"
                                     width="100%"/>
-
+                            </VBox>
+                            <VBox width="48%">
                                 <Label text="{i18n>endDateLabelText}"/>
                                 <DatePicker id="endDatePickerInFragment"
                                     value="{
@@ -41,11 +50,19 @@
                                     }"
                                     displayFormat="long"
                                     width="100%"/>
-                                
-                                <Label /> <Button id="runAnalysisButtonInFragment" text="{i18n>runAnalysisButtonText}" press=".onRunAnalysisPress" type="Emphasized" width="auto"/>
-                            </f:content>
-                        </f:SimpleForm>
+                            </VBox>
+                        </HBox>
+
+                        <Label class="sapUiTinyMarginTop" text="Cantidad de acciones"/>
+                        <StepInput value="{strategyAnalysisModel>/stock}" min="1" step="1" displayValuePrecision="0" placeholder="Ej: 10" width="100%" class=""/>
+
+                        
                     </VBox>
+
+                    <Label/>
+                        <Button id="runAnalysisButtonInFragment" text="{i18n>runAnalysisButtonText}" press=".onRunAnalysisPress" type="Emphasized" width="auto"/>
+
+
                 </f:content>
             </f:SimpleForm>
         </content>

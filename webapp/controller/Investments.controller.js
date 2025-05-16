@@ -30,8 +30,16 @@ sap.ui.define([
             onAfterRendering: this._onViewAfterRendering.bind(this)
         });
 
+        var oViewModel = new sap.ui.model.json.JSONModel({
+            selectedTab: "table"
+        });
+        this.getView().setModel(oViewModel, "viewModel");
+
+
           // Inicializar el modelo de análisis (tus cambios)
           var oStrategyAnalysisModelData = {
+              balance: 1000,
+              stock: 1,
               strategyKey: "",
               longSMA: 200,
               shortSMA: 50,
@@ -107,6 +115,11 @@ sap.ui.define([
               }
           }
       },
+
+      onTabSelect: function(oEvent) {
+        var sKey = oEvent.getParameter("key");
+        this.getView().getModel("viewModel").setProperty("/selectedTab", sKey);
+    },
 
       _onViewAfterRendering: function() {
             this._configureChart();
@@ -221,6 +234,9 @@ sap.ui.define([
     var oView = this.getView();
     var oStrategyModel = oView.getModel("strategyAnalysisModel");
     var oResultModel = oView.getModel("strategyResultModel");
+    var oAnalysisPanel = this.byId("strategyAnalysisPanelTable")?.byId("strategyAnalysisPanel") ||
+                         this.byId("strategyAnalysisPanelChart")?.byId("strategyAnalysisPanel");
+    var oResultPanel = this.byId("strategyResultPanel") || sap.ui.core.Fragment.byId("strategyResultPanel");
     var sSymbol = oView.byId("symbolSelector").getSelectedKey();
 
     // Validaciones básicas
@@ -231,6 +247,14 @@ sap.ui.define([
     if (!sSymbol) {
         MessageBox.warning("Seleccione un símbolo (ej: AAPL)");
         return;
+    }
+
+     if (oAnalysisPanel) {
+        oAnalysisPanel.setExpanded(false);
+    }
+    // Expande el panel de resultados
+    if (oResultPanel) {
+        oResultPanel.setExpanded(true);
     }
 
     // Configurar petición
@@ -260,6 +284,15 @@ sap.ui.define([
             signals: data.value.signals || [],
             result: data.value.result || 0
         });
+
+        // Sumar la ganancia al balance
+        var oStrategyModel = this.getView().getModel("strategyAnalysisModel");
+        var currentBalance = oStrategyModel.getProperty("/balance") || 0;
+        var gainPerShare = data.value.result || 0;
+        var stock = oStrategyModel.getProperty("/stock") || 1;
+        var totalGain = +(gainPerShare * stock).toFixed(2);
+        oStrategyModel.setProperty("/balance", currentBalance + totalGain);
+        MessageToast.show("Se añadieron $" + totalGain + " a tu balance.");
     })
     .catch(error => {
         console.error("Error:", error);
@@ -287,27 +320,6 @@ _prepareTableData: function(aData) {
         LONG_MA: oItem.long_ma
     }));
 },
-      // Método del Sidebar
-      // onToggleSidebarPress: function() {
-      //     var oSidebarLayoutData = this.byId("sidebarLayoutData"); 
-
-      //     if (oSidebarLayoutData) {
-      //         if (this._bSidebarExpanded) {
-      //             this._sSidebarOriginalSize = oSidebarLayoutData.getSize();
-      //             oSidebarLayoutData.setSize("0px");
-      //         } else {
-      //             oSidebarLayoutData.setSize(this._sSidebarOriginalSize);
-      //         }
-      //         this._bSidebarExpanded = !this._bSidebarExpanded;
-
-      //         var oButton = this.byId("toggleSidebarButton");
-      //         if (oButton) {
-      //             oButton.setIcon(this._bSidebarExpanded ? "sap-icon://menu2" : "sap-icon://open-command-field");
-      //         }
-      //     } else {
-      //         console.error("No se pudo encontrar sidebarLayoutData para plegar/desplegar.");
-      //     }
-      // },
 
       onRefreshChart: function() {
         const oSymbolModel = this.getView().getModel("symbolModel");
@@ -353,61 +365,83 @@ _prepareTableData: function(aData) {
         }
     },
 
-    onTimeIntervalChange: function(oEvent) {
-        const sKey = oEvent.getParameter("selectedItem").getKey();
-        const oPriceModel = this.getView().getModel("priceData");
-        const aOriginalData = oPriceModel.getProperty("/originalValue"); // Datos originales
-        const aData = aOriginalData || []; // Usa los datos originales si están disponibles
+          // Método del Sidebar
+      // onToggleSidebarPress: function() {
+      //     var oSidebarLayoutData = this.byId("sidebarLayoutData"); 
+
+      //     if (oSidebarLayoutData) {
+      //         if (this._bSidebarExpanded) {
+      //             this._sSidebarOriginalSize = oSidebarLayoutData.getSize();
+      //             oSidebarLayoutData.setSize("0px");
+      //         } else {
+      //             oSidebarLayoutData.setSize(this._sSidebarOriginalSize);
+      //         }
+      //         this._bSidebarExpanded = !this._bSidebarExpanded;
+
+      //         var oButton = this.byId("toggleSidebarButton");
+      //         if (oButton) {
+      //             oButton.setIcon(this._bSidebarExpanded ? "sap-icon://menu2" : "sap-icon://open-command-field");
+      //         }
+      //     } else {
+      //         console.error("No se pudo encontrar sidebarLayoutData para plegar/desplegar.");
+      //     }
+      // },
+
+    // onTimeIntervalChange: function(oEvent) {
+    //     const sKey = oEvent.getParameter("selectedItem").getKey();
+    //     const oPriceModel = this.getView().getModel("priceData");
+    //     const aOriginalData = oPriceModel.getProperty("/originalValue"); // Datos originales
+    //     const aData = aOriginalData || []; // Usa los datos originales si están disponibles
     
-        if (!aData || aData.length === 0) {
-            MessageToast.show("No hay datos originales disponibles para filtrar.");
-            return;
-        }
+    //     if (!aData || aData.length === 0) {
+    //         MessageToast.show("No hay datos originales disponibles para filtrar.");
+    //         return;
+    //     }
     
-        // Calcula la fecha de inicio según el intervalo seleccionado
-        const oEndDate = new Date();
-        let oStartDate;
-        switch (sKey) {
-            case "1D": // Último día
-                oStartDate = new Date(oEndDate);
-                oStartDate.setDate(oEndDate.getDate() - 1);
-                break;
-            case "1W": // Última semana
-                oStartDate = new Date(oEndDate);
-                oStartDate.setDate(oEndDate.getDate() - 7);
-                break;
-            case "1M": // Último mes
-                oStartDate = new Date(oEndDate);
-                oStartDate.setMonth(oEndDate.getMonth() - 1);
-                break;
-            case "1Y": // Último año
-                oStartDate = new Date(oEndDate);
-                oStartDate.setFullYear(oEndDate.getFullYear() - 1);
-                break;
-            case "ALL": // Historial completo
-            default:
-                oStartDate = null; // No filtrar
-                break;
-        }
+    //     // Calcula la fecha de inicio según el intervalo seleccionado
+    //     const oEndDate = new Date();
+    //     let oStartDate;
+    //     switch (sKey) {
+    //         case "1D": // Último día
+    //             oStartDate = new Date(oEndDate);
+    //             oStartDate.setDate(oEndDate.getDate() - 1);
+    //             break;
+    //         case "1W": // Última semana
+    //             oStartDate = new Date(oEndDate);
+    //             oStartDate.setDate(oEndDate.getDate() - 7);
+    //             break;
+    //         case "1M": // Último mes
+    //             oStartDate = new Date(oEndDate);
+    //             oStartDate.setMonth(oEndDate.getMonth() - 1);
+    //             break;
+    //         case "1Y": // Último año
+    //             oStartDate = new Date(oEndDate);
+    //             oStartDate.setFullYear(oEndDate.getFullYear() - 1);
+    //             break;
+    //         case "ALL": // Historial completo
+    //         default:
+    //             oStartDate = null; // No filtrar
+    //             break;
+    //     }
     
-        // Filtra los datos según el intervalo
-        const oDateFormat = DateFormat.getDateInstance({ pattern: "MM/dd/yyyy" });
-        const aFilteredData = oStartDate
-            ? aData.filter(oItem => {
-                const oItemDate = new Date(oItem.DATE); // Usa new Date() para convertir la fecha
-                return oItemDate >= oStartDate && oItemDate <= oEndDate;
-            })
-            : aData;
+    //     // Filtra los datos según el intervalo
+    //     const oDateFormat = DateFormat.getDateInstance({ pattern: "MM/dd/yyyy" });
+    //     const aFilteredData = oStartDate
+    //         ? aData.filter(oItem => {
+    //             const oItemDate = new Date(oItem.DATE); // Usa new Date() para convertir la fecha
+    //             return oItemDate >= oStartDate && oItemDate <= oEndDate;
+    //         })
+    //         : aData;
     
-        if (aFilteredData.length === 0) {
-            MessageToast.show("No hay datos disponibles para el intervalo seleccionado.");
-            oPriceModel.setProperty("/value", aOriginalData); // Restaura los datos originales
-            return;
-        }
+    //     if (aFilteredData.length === 0) {
+    //         MessageToast.show("No hay datos disponibles para el intervalo seleccionado.");
+    //         oPriceModel.setProperty("/value", aOriginalData); // Restaura los datos originales
+    //         return;
+    //     }
     
-        // Actualiza el modelo con los datos filtrados
-        console.log("Datos filtrados:", aFilteredData);
-        oPriceModel.setProperty("/value", aFilteredData);
-    }
+    //     // Actualiza el modelo con los datos filtrados
+    //     console.log("Datos filtrados:", aFilteredData);
+    //     oPriceModel.setProperty("/value", aFilteredData);
+    // }
   });
 });
