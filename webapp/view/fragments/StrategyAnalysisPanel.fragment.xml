@@ -56,12 +56,10 @@
                         <Label class="sapUiTinyMarginTop" text="Cantidad de acciones"/>
                         <StepInput value="{strategyAnalysisModel>/stock}" min="1" step="1" displayValuePrecision="0" placeholder="Ej: 10" width="100%" class=""/>
 
-                        
-                    </VBox>
-
-                    <Label/>
+                        <Label/>
                         <Button id="runAnalysisButtonInFragment" text="{i18n>runAnalysisButtonText}" press=".onRunAnalysisPress" type="Emphasized" width="auto"/>
 
+                    </VBox>
 
                 </f:content>
             </f:SimpleForm>
